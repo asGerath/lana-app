@@ -4,28 +4,37 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { clearSessionFromStorage } from '@/features/auth/auth-storage';
-import { clearTasksState } from '@/store/slices/tasksSlice';
+import { getBoardFromStorage, saveBoardToStorage } from '@/features/tasks/task-storage';
+import Board from '@/components/board/Board';
+import TaskForm from '@/components/board/TaskForm';
+import { clearTasksState, setBoardState } from '@/store/slices/tasksSlice';
 import { logout } from '@/store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
-const BoardWrapper = styled.main`
+const BoardPageWrapper = styled.main`
   min-height: 100vh;
   padding: ${({ theme }) => theme.spacing.xxl};
 `;
 
 const Header = styled.header`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.lg};
   margin-bottom: ${({ theme }) => theme.spacing.xl};
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 const Title = styled.h1`
   font-size: 2rem;
 `;
 
-const UserInfo = styled.div`
+const UserInfo = styled.p`
   color: ${({ theme }) => theme.colors.textMuted};
+  margin-top: ${({ theme }) => theme.spacing.sm};
 `;
 
 const LogoutButton = styled.button`
@@ -37,23 +46,32 @@ const LogoutButton = styled.button`
   cursor: pointer;
 `;
 
-const PlaceholderCard = styled.section`
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ theme }) => theme.colors.surface};
-  border-radius: ${({ theme }) => theme.radius.lg};
-  padding: ${({ theme }) => theme.spacing.xl};
-`;
-
 export default function BoardPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { board } = useAppSelector((state) => state.tasks);
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace('/login');
     }
   }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const storedBoard = getBoardFromStorage(user.id);
+
+    if (storedBoard) {
+      dispatch(setBoardState(storedBoard));
+    }
+  }, [dispatch, user]);
+
+  useEffect(() => {
+    if (!user) return;
+    saveBoardToStorage(user.id, board);
+  }, [board, user]);
 
   const handleLogout = () => {
     clearSessionFromStorage();
@@ -62,26 +80,25 @@ export default function BoardPage() {
     router.replace('/login');
   };
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     return null;
   }
 
   return (
-    <BoardWrapper>
+    <BoardPageWrapper>
       <Header>
         <div>
           <Title>Task Board</Title>
           <UserInfo>
-            Sesión activa como: {user?.name} ({user?.email})
+            Sesión activa como: {user.name} ({user.email})
           </UserInfo>
         </div>
 
         <LogoutButton onClick={handleLogout}>Cerrar sesión</LogoutButton>
       </Header>
 
-      <PlaceholderCard>
-        <p>Login funcionando. El tablero tipo Trello va en el siguiente bloque.</p>
-      </PlaceholderCard>
-    </BoardWrapper>
+      <TaskForm />
+      <Board />
+    </BoardPageWrapper>
   );
 }
