@@ -3,6 +3,7 @@
 import styled from 'styled-components';
 import { useAppSelector } from '@/store/hooks';
 import Column from './Column';
+import { selectFilteredTasksByColumn } from '@/features/tasks/task.selectors';
 
 const BoardGrid = styled.section`
   display: grid;
@@ -16,14 +17,13 @@ const BoardGrid = styled.section`
 
 export default function Board() {
   const { board } = useAppSelector((state) => state.tasks);
+  const state = useAppSelector((currentState) => currentState);
 
   return (
     <BoardGrid>
       {board.columnOrder.map((columnId) => {
         const column = board.columns[columnId];
-        const tasks = column.taskIds
-          .map((taskId) => board.tasksById[taskId])
-          .filter(Boolean);
+        const tasks = selectFilteredTasksByColumn(state, columnId);
 
         return <Column key={column.id} column={column} tasks={tasks} />;
       })}
