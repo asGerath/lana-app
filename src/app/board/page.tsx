@@ -10,6 +10,7 @@ import TaskForm from '@/components/board/TaskForm';
 import { clearTasksState, setBoardState } from '@/store/slices/tasksSlice';
 import { logout } from '@/store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import TaskFilters from '@/components/board/TaskFilters';
 
 const BoardPageWrapper = styled.main`
   min-height: 100vh;
@@ -98,6 +99,7 @@ export default function BoardPage() {
       </Header>
 
       <TaskForm />
+      <TaskFilters />
       <Board />
     </BoardPageWrapper>
   );
