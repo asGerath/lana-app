@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import StyledComponentsRegistry from '@/lib/styled-components-registry';
 import Providers from './providers';
+import SessionBootstrap from '@/components/auth/SessionBootstrap';
 
 export const metadata: Metadata = {
   title: 'Task Board App',
@@ -16,7 +17,10 @@ export default function RootLayout({
     <html lang="es">
       <body>
         <StyledComponentsRegistry>
-          <Providers>{children}</Providers>
+          <Providers>
+            <SessionBootstrap />
+            {children}
+          </Providers>
         </StyledComponentsRegistry>
       </body>
     </html>
