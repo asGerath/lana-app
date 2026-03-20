@@ -12,7 +12,7 @@ const globalStyles = createGlobalStyle`
   html, body {
     width: 100%;
     min-height: 100%;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: inherit;
     background: ${({ theme }) => theme.colors.bg};
     color: ${({ theme }) => theme.colors.text};
   }

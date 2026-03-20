@@ -1,4 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Task App
+
+App con autenticacion basada en ReqRes y tablero de tareas.
+
+## Environment Variables
+
+Configura un archivo `.env.local` en la raiz con:
+
+```bash
+NEXT_PUBLIC_REQRES_API_KEY=tu_api_key_real
+NEXT_PUBLIC_ENABLE_AUTH_MOCK=false
+```
+
+- `NEXT_PUBLIC_REQRES_API_KEY`: API key real de ReqRes.
+- `NEXT_PUBLIC_ENABLE_AUTH_MOCK`: solo para desarrollo. Si vale `true`, permite login mock con las credenciales demo cuando ReqRes no esta disponible o la key no es valida.
+
+Credenciales demo:
+
+```text
+email: eve.holt@reqres.in
+password: cityslicka
+```
 
 ## Getting Started
 

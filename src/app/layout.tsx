@@ -1,7 +1,14 @@
 import type { Metadata } from 'next';
+import { Red_Hat_Display } from 'next/font/google';
 import StyledComponentsRegistry from '@/lib/styled-components-registry';
 import Providers from './providers';
 import SessionBootstrap from '@/components/auth/SessionBootstrap';
+
+const redHatDisplay = Red_Hat_Display({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Task Board App',
@@ -15,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body>
+      <body className={redHatDisplay.className}>
         <StyledComponentsRegistry>
           <Providers>
             <SessionBootstrap />

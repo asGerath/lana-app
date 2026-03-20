@@ -3,6 +3,10 @@ import 'styled-components';
 declare module 'styled-components' {
   export interface DefaultTheme {
     colors: {
+      footerText: string;
+      white: string;
+      black: string;
+      bgcian: string;
       bg: string;
       surface: string;
       card: string;

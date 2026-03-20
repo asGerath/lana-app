@@ -1,33 +1,20 @@
 'use client';
 
 import { useEffect } from 'react';
-import { saveSessionToStorage, getSessionFromStorage } from '@/features/auth/auth-storage';
-import { saveBoardToStorage, getBoardFromStorage } from '@/features/tasks/task-storage';
-import { initialTasksState } from '@/features/tasks/initialState';
+import { useRouter } from 'next/navigation';
+import { useAppSelector } from '@/store/hooks';
 
 export default function HomePage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+
   useEffect(() => {
-    const user = {
-      id: '1',
-      email: 'test@test.com',
-      name: 'Test User',
-    };
+    if (isAuthenticated) {
+      router.replace('/board');
+    } else {
+      router.replace('/login');
+    }
+  }, [isAuthenticated, router]);
 
-    saveSessionToStorage(user, 'fake-token-123');
-
-    const session = getSessionFromStorage();
-    console.log('session', session);
-
-    saveBoardToStorage(user.id, initialTasksState.board);
-
-    const board = getBoardFromStorage(user.id);
-    console.log('board', board);
-  }, []);
-
-  return (
-    <main style={{ padding: '2rem' }}>
-      <h1>Task Board App</h1>
-      <p>Persistencia base lista.</p>
-    </main>
-  );
+  return null;
 }
