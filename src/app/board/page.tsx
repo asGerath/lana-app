@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { clearSessionFromStorage } from '@/features/auth/auth-storage';
 import { getBoardFromStorage, saveBoardToStorage } from '@/features/tasks/task-storage';
 import Board from '@/components/board/Board';
-import TaskForm from '@/components/board/TaskForm';
 import { clearTasksState, setBoardState } from '@/store/slices/tasksSlice';
 import { logout } from '@/store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -116,7 +115,6 @@ export default function BoardPage() {
         <LogoutButton onClick={handleLogout}>Cerrar sesión</LogoutButton>
       </Header>
 
-      <TaskForm />
       <TaskFilters />
       <Board />
     </BoardPageWrapper>

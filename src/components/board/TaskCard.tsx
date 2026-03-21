@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { TaskNode } from '@/features/tasks/types';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -42,6 +43,10 @@ const Meta = styled.small`
     color: #7a8799;
 `;
 
+const TitleWrap = styled.div`
+    min-width: 0;
+`;
+
 const Actions = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing.sm};
@@ -59,6 +64,60 @@ const Button = styled.button`
 
 const DangerButton = styled(Button)`
   background: ${({ theme }) => theme.colors.danger};
+`;
+
+const MenuWrapper = styled.div`
+    position: relative;
+    flex-shrink: 0;
+`;
+
+const MenuButton = styled.button`
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: ${({ theme }) => theme.radius.sm};
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+        background: rgba(15, 23, 42, 0.08);
+        outline: none;
+    }
+`;
+
+const Menu = styled.div`
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 170px;
+    background: ${({ theme }) => theme.colors.surface};
+    border: 1px solid ${({ theme }) => theme.colors.border};
+    border-radius: ${({ theme }) => theme.radius.md};
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+    padding: 6px;
+    z-index: 15;
+`;
+
+const MenuItem = styled.button<{ $danger?: boolean }>`
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: left;
+    padding: 9px 10px;
+    border-radius: ${({ theme }) => theme.radius.sm};
+    color: ${({ theme, $danger }) => ($danger ? theme.colors.danger : theme.colors.text)};
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+        background: rgba(15, 23, 42, 0.08);
+        outline: none;
+    }
 `;
 
 const FavoriteBadge = styled.span`
@@ -98,10 +157,28 @@ type TaskCardProps = {
 export default function TaskCard({ task }: TaskCardProps) {
     const dispatch = useAppDispatch();
     const { board } = useAppSelector((state) => state.tasks);
+    const menuRef = useRef<HTMLDivElement | null>(null);
 
     const [isEditing, setIsEditing] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description ?? '');
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (!menuRef.current) return;
+
+            if (!menuRef.current.contains(event.target as Node)) {
+                setIsMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const handleDelete = () => {
         const confirmed = window.confirm(
@@ -115,6 +192,7 @@ export default function TaskCard({ task }: TaskCardProps) {
 
     const handleToggleFavorite = () => {
         dispatch(toggleFavorite({ id: task.id }));
+        setIsMenuOpen(false);
     };
 
     const handleSaveEdit = () => {
@@ -157,35 +235,54 @@ export default function TaskCard({ task }: TaskCardProps) {
         setIsEditing(false);
     };
 
+    const openEdit = () => {
+        setIsEditing(true);
+        setIsMenuOpen(false);
+    };
+
+    const onDeleteFromMenu = () => {
+        setIsMenuOpen(false);
+        handleDelete();
+    };
+
     return (
         <Card>
             <Header>
-                <div>
+                <TitleWrap>
                     <Title>
                         {task.title} {task.favorite ? <FavoriteBadge>⭐</FavoriteBadge> : null}
                     </Title>
-                </div>
+                </TitleWrap>
+
+                <MenuWrapper ref={menuRef}>
+                    <MenuButton
+                        type="button"
+                        aria-label="Abrir acciones de la tarea"
+                        aria-expanded={isMenuOpen}
+                        onClick={() => setIsMenuOpen((current) => !current)}
+                    >
+                        <Image src="/puntos.png" alt="Acciones" width={16} height={16} />
+                    </MenuButton>
+
+                    {isMenuOpen ? (
+                        <Menu role="menu" aria-label="Acciones de tarea">
+                            <MenuItem type="button" role="menuitem" onClick={handleToggleFavorite}>
+                                {task.favorite ? 'Quitar favorito' : 'Favorito'}
+                            </MenuItem>
+                            <MenuItem type="button" role="menuitem" onClick={openEdit}>
+                                Editar
+                            </MenuItem>
+                            <MenuItem type="button" role="menuitem" $danger onClick={onDeleteFromMenu}>
+                                Eliminar
+                            </MenuItem>
+                        </Menu>
+                    ) : null}
+                </MenuWrapper>
             </Header>
 
             {task.description ? <Description>{task.description}</Description> : null}
 
             <Meta>Versión: {task.version}</Meta>
-
-            <Actions>
-                <Button type="button" onClick={handleToggleFavorite}>
-                    {task.favorite ? 'Quitar favorito' : 'Favorito'}
-                </Button>
-
-                {!isEditing ? (
-                    <Button type="button" onClick={() => setIsEditing(true)}>
-                        Editar
-                    </Button>
-                ) : null}
-
-                <DangerButton type="button" onClick={handleDelete}>
-                    Eliminar
-                </DangerButton>
-            </Actions>
 
             {isEditing ? (
                 <EditForm>
