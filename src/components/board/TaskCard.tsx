@@ -13,7 +13,7 @@ import {
 import { taskTitleExists } from '@/features/tasks/task-helpers';
 
 const Card = styled.article`
-  background: ${({ theme }) => theme.colors.card};
+    background: #f8fafc;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.md};
   padding: ${({ theme }) => theme.spacing.lg};
@@ -30,15 +30,16 @@ const Header = styled.div`
 
 const Title = styled.h3`
   font-size: 1rem;
+    color: ${({ theme }) => theme.colors.black};
 `;
 
 const Description = styled.p`
-  color: ${({ theme }) => theme.colors.textMuted};
+    color: #5f6b7a;
   font-size: 0.95rem;
 `;
 
 const Meta = styled.small`
-  color: ${({ theme }) => theme.colors.textMuted};
+    color: #7a8799;
 `;
 
 const Actions = styled.div`
@@ -51,8 +52,8 @@ const Button = styled.button`
   border: none;
   padding: 8px 10px;
   border-radius: ${({ theme }) => theme.radius.sm};
-  background: ${({ theme }) => theme.colors.surface};
-  color: ${({ theme }) => theme.colors.text};
+    background: #1f3555;
+    color: ${({ theme }) => theme.colors.white};
   cursor: pointer;
 `;
 

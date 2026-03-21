@@ -1,13 +1,14 @@
 'use client';
 
 import styled from 'styled-components';
+import Image from 'next/image';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Column as ColumnType, TaskNode } from '@/features/tasks/types';
 import DraggableTaskCard from './DraggableTaskCard';
 
 const ColumnWrapper = styled.section<{ $isOver: boolean }>`
-  background: ${({ theme }) => theme.colors.surface};
+  background: ${({ theme }) => theme.colors.white};
   border: 1px solid
     ${({ theme, $isOver }) =>
       $isOver ? theme.colors.primary : theme.colors.border};
@@ -26,8 +27,15 @@ const ColumnHeader = styled.div`
   justify-content: space-between;
 `;
 
+const ColumnTitleGroup = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+`;
+
 const ColumnTitle = styled.h2`
-  font-size: 1.1rem;
+  font-size: 1.35rem;
+  color: ${({ theme }) => theme.colors.black};
 `;
 
 const Badge = styled.span`
@@ -36,8 +44,9 @@ const Badge = styled.span`
   border-radius: 999px;
   display: inline-grid;
   place-items: center;
-  background: ${({ theme }) => theme.colors.card};
+  background: ${({ theme }) => theme.colors.white};
   border: 1px solid ${({ theme }) => theme.colors.border};
+  color: #718096;
   font-size: 0.9rem;
 `;
 
@@ -46,6 +55,19 @@ const TaskList = styled.div`
   gap: ${({ theme }) => theme.spacing.md};
   min-height: 120px;
 `;
+
+const NewTaskText = styled.p`
+  margin-top: ${({ theme }) => theme.spacing.sm};
+  color: ${({ theme }) => theme.colors.primary};
+  font-weight: 600;
+  font-size: 0.95rem;
+`;
+
+const STATUS_ICON_BY_COLUMN = {
+  pending: '/circle.png',
+  in_progress: '/clock_loader_40.png',
+  completed: '/check_circle.png',
+} as const;
 
 type DroppableColumnProps = {
   column: ColumnType;
@@ -67,7 +89,15 @@ export default function DroppableColumn({
   return (
     <ColumnWrapper ref={setNodeRef} $isOver={isOver}>
       <ColumnHeader>
-        <ColumnTitle>{column.title}</ColumnTitle>
+        <ColumnTitleGroup>
+          <Image
+            src={STATUS_ICON_BY_COLUMN[column.id]}
+            alt={`Estado ${column.title}`}
+            width={16}
+            height={16}
+          />
+          <ColumnTitle>{column.title}</ColumnTitle>
+        </ColumnTitleGroup>
         <Badge>{tasks.length}</Badge>
       </ColumnHeader>
 
@@ -81,6 +111,8 @@ export default function DroppableColumn({
           ))}
         </TaskList>
       </SortableContext>
+
+      <NewTaskText>+ Nueva tarea</NewTaskText>
     </ColumnWrapper>
   );
 }
