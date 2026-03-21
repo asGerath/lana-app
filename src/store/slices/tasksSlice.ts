@@ -8,6 +8,7 @@ type CreateTaskPayload = {
 
 type UpdateTaskPayload = {
   id: string;
+  expectedVersion?: number;
   changes: Partial<Omit<TaskNode, 'id' | 'createdBy' | 'createdAt'>>;
 };
 
@@ -60,10 +61,19 @@ const tasksSlice = createSlice({
     },
 
     updateTask: (state, action: PayloadAction<UpdateTaskPayload>) => {
-      const { id, changes } = action.payload;
+      const { id, changes, expectedVersion } = action.payload;
       const currentTask = state.board.tasksById[id];
 
       if (!currentTask) return;
+
+      if (
+        typeof expectedVersion === 'number' &&
+        currentTask.version !== expectedVersion
+      ) {
+        state.error =
+          'Conflicto de edición: la tarea fue modificada antes de guardar.';
+        return;
+      }
 
       const previousStatus = currentTask.status;
       const nextStatus = changes.status ?? previousStatus;
@@ -83,6 +93,8 @@ const tasksSlice = createSlice({
 
         state.board.columns[nextStatus].taskIds.push(id);
       }
+
+      state.error = null;
     },
 
     deleteTask: (state, action: PayloadAction<DeleteTaskPayload>) => {
@@ -118,24 +130,26 @@ const tasksSlice = createSlice({
         destinationIndex,
       } = action.payload;
 
-      const sourceTasks = [...state.board.columns[sourceColumnId].taskIds];
-      const destinationTasks =
-        sourceColumnId === destinationColumnId
-          ? sourceTasks
-          : [...state.board.columns[destinationColumnId].taskIds];
-
-      sourceTasks.splice(sourceIndex, 1);
-      destinationTasks.splice(destinationIndex, 0, taskId);
-
       if (sourceColumnId === destinationColumnId) {
-        state.board.columns[sourceColumnId].taskIds = destinationTasks;
-      } else {
-        state.board.columns[sourceColumnId].taskIds = sourceTasks;
-        state.board.columns[destinationColumnId].taskIds = destinationTasks;
-        state.board.tasksById[taskId].status = destinationColumnId;
-        state.board.tasksById[taskId].updatedAt = Date.now();
-        state.board.tasksById[taskId].version += 1;
+        const taskIds = [...state.board.columns[sourceColumnId].taskIds];
+        taskIds.splice(sourceIndex, 1);
+        taskIds.splice(destinationIndex, 0, taskId);
+        state.board.columns[sourceColumnId].taskIds = taskIds;
+        return;
       }
+
+      const sourceTaskIds = [...state.board.columns[sourceColumnId].taskIds];
+      const destinationTaskIds = [...state.board.columns[destinationColumnId].taskIds];
+
+      sourceTaskIds.splice(sourceIndex, 1);
+      destinationTaskIds.splice(destinationIndex, 0, taskId);
+
+      state.board.columns[sourceColumnId].taskIds = sourceTaskIds;
+      state.board.columns[destinationColumnId].taskIds = destinationTaskIds;
+
+      state.board.tasksById[taskId].status = destinationColumnId;
+      state.board.tasksById[taskId].updatedAt = Date.now();
+      state.board.tasksById[taskId].version += 1;
     },
 
     clearTasksState: (state) => {
