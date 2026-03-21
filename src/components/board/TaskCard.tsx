@@ -5,10 +5,10 @@ import styled from 'styled-components';
 import { TaskNode } from '@/features/tasks/types';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  deleteTask,
-  setTasksError,
-  toggleFavorite,
-  updateTask,
+    deleteTask,
+    setTasksError,
+    toggleFavorite,
+    updateTask,
 } from '@/store/slices/tasksSlice';
 import { taskTitleExists } from '@/features/tasks/task-helpers';
 
@@ -91,118 +91,119 @@ const TextArea = styled.textarea`
 `;
 
 type TaskCardProps = {
-  task: TaskNode;
+    task: TaskNode;
 };
 
 export default function TaskCard({ task }: TaskCardProps) {
-  const dispatch = useAppDispatch();
-  const { board } = useAppSelector((state) => state.tasks);
+    const dispatch = useAppDispatch();
+    const { board } = useAppSelector((state) => state.tasks);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [title, setTitle] = useState(task.title);
-  const [description, setDescription] = useState(task.description ?? '');
+    const [isEditing, setIsEditing] = useState(false);
+    const [title, setTitle] = useState(task.title);
+    const [description, setDescription] = useState(task.description ?? '');
 
-  const handleDelete = () => {
-    const confirmed = window.confirm(
-      `¿Seguro que quieres eliminar la tarea "${task.title}"?`,
+    const handleDelete = () => {
+        const confirmed = window.confirm(
+            `¿Seguro que quieres eliminar la tarea "${task.title}"?`,
+        );
+
+        if (!confirmed) return;
+
+        dispatch(deleteTask({ id: task.id }));
+    };
+
+    const handleToggleFavorite = () => {
+        dispatch(toggleFavorite({ id: task.id }));
+    };
+
+    const handleSaveEdit = () => {
+        const trimmedTitle = title.trim();
+
+        if (!trimmedTitle) {
+            dispatch(setTasksError('El nombre de la tarea es obligatorio.'));
+            return;
+        }
+
+        const duplicatedTitle = Object.values(board.tasksById).some(
+            (currentTask) =>
+                currentTask.id !== task.id &&
+                currentTask.title.trim().toLowerCase() === trimmedTitle.toLowerCase(),
+        );
+
+        if (duplicatedTitle || (trimmedTitle !== task.title && taskTitleExists(board, trimmedTitle))) {
+            dispatch(setTasksError('Ya existe una tarea con ese nombre.'));
+            return;
+        }
+
+        dispatch(
+            updateTask({
+                id: task.id,
+                expectedVersion: task.version,
+                changes: {
+                    title: trimmedTitle,
+                    description: description.trim(),
+                },
+            }),
+        );
+
+        dispatch(setTasksError(null));
+        setIsEditing(false);
+    };
+
+    const handleCancelEdit = () => {
+        setTitle(task.title);
+        setDescription(task.description ?? '');
+        setIsEditing(false);
+    };
+
+    return (
+        <Card>
+            <Header>
+                <div>
+                    <Title>
+                        {task.title} {task.favorite ? <FavoriteBadge>⭐</FavoriteBadge> : null}
+                    </Title>
+                </div>
+            </Header>
+
+            {task.description ? <Description>{task.description}</Description> : null}
+
+            <Meta>Versión: {task.version}</Meta>
+
+            <Actions>
+                <Button type="button" onClick={handleToggleFavorite}>
+                    {task.favorite ? 'Quitar favorito' : 'Favorito'}
+                </Button>
+
+                {!isEditing ? (
+                    <Button type="button" onClick={() => setIsEditing(true)}>
+                        Editar
+                    </Button>
+                ) : null}
+
+                <DangerButton type="button" onClick={handleDelete}>
+                    Eliminar
+                </DangerButton>
+            </Actions>
+
+            {isEditing ? (
+                <EditForm>
+                    <Input value={title} onChange={(event) => setTitle(event.target.value)} />
+                    <TextArea
+                        value={description}
+                        onChange={(event) => setDescription(event.target.value)}
+                    />
+
+                    <Actions>
+                        <Button type="button" onClick={handleSaveEdit}>
+                            Guardar
+                        </Button>
+                        <Button type="button" onClick={handleCancelEdit}>
+                            Cancelar
+                        </Button>
+                    </Actions>
+                </EditForm>
+            ) : null}
+        </Card>
     );
-
-    if (!confirmed) return;
-
-    dispatch(deleteTask({ id: task.id }));
-  };
-
-  const handleToggleFavorite = () => {
-    dispatch(toggleFavorite({ id: task.id }));
-  };
-
-  const handleSaveEdit = () => {
-    const trimmedTitle = title.trim();
-
-    if (!trimmedTitle) {
-      dispatch(setTasksError('El nombre de la tarea es obligatorio.'));
-      return;
-    }
-
-    const duplicatedTitle = Object.values(board.tasksById).some(
-      (currentTask) =>
-        currentTask.id !== task.id &&
-        currentTask.title.trim().toLowerCase() === trimmedTitle.toLowerCase(),
-    );
-
-    if (duplicatedTitle || (trimmedTitle !== task.title && taskTitleExists(board, trimmedTitle))) {
-      dispatch(setTasksError('Ya existe una tarea con ese nombre.'));
-      return;
-    }
-
-    dispatch(
-      updateTask({
-        id: task.id,
-        changes: {
-          title: trimmedTitle,
-          description: description.trim(),
-        },
-      }),
-    );
-
-    dispatch(setTasksError(null));
-    setIsEditing(false);
-  };
-
-  const handleCancelEdit = () => {
-    setTitle(task.title);
-    setDescription(task.description ?? '');
-    setIsEditing(false);
-  };
-
-  return (
-    <Card>
-      <Header>
-        <div>
-          <Title>
-            {task.title} {task.favorite ? <FavoriteBadge>⭐</FavoriteBadge> : null}
-          </Title>
-        </div>
-      </Header>
-
-      {task.description ? <Description>{task.description}</Description> : null}
-
-      <Meta>Versión: {task.version}</Meta>
-
-      <Actions>
-        <Button type="button" onClick={handleToggleFavorite}>
-          {task.favorite ? 'Quitar favorito' : 'Favorito'}
-        </Button>
-
-        {!isEditing ? (
-          <Button type="button" onClick={() => setIsEditing(true)}>
-            Editar
-          </Button>
-        ) : null}
-
-        <DangerButton type="button" onClick={handleDelete}>
-          Eliminar
-        </DangerButton>
-      </Actions>
-
-      {isEditing ? (
-        <EditForm>
-          <Input value={title} onChange={(event) => setTitle(event.target.value)} />
-          <TextArea
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-          />
-
-          <Actions>
-            <Button type="button" onClick={handleSaveEdit}>
-              Guardar
-            </Button>
-            <Button type="button" onClick={handleCancelEdit}>
-              Cancelar
-            </Button>
-          </Actions>
-        </EditForm>
-      ) : null}
-    </Card>
-  );
 }

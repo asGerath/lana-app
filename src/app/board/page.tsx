@@ -11,6 +11,7 @@ import { clearTasksState, setBoardState } from '@/store/slices/tasksSlice';
 import { logout } from '@/store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import TaskFilters from '@/components/board/TaskFilters';
+import { taskRealtimeService } from '@/features/tasks/task-realtime.service';
 
 const BoardPageWrapper = styled.main`
   min-height: 100vh;
@@ -69,10 +70,27 @@ export default function BoardPage() {
     }
   }, [dispatch, user]);
 
-  useEffect(() => {
+    useEffect(() => {
     if (!user) return;
+
     saveBoardToStorage(user.id, board);
+    taskRealtimeService.emit({
+      type: 'board-updated',
+      payload: board,
+    });
   }, [board, user]);
+
+    useEffect(() => {
+    const unsubscribe = taskRealtimeService.subscribe((event) => {
+      if (event.type === 'board-updated') {
+        // Punto de extensión para sincronización visual,
+        // logs o futuras notificaciones en tiempo real.
+        console.log('Realtime event:', event.type);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   const handleLogout = () => {
     clearSessionFromStorage();
