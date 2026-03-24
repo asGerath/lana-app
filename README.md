@@ -1,55 +1,383 @@
-## Task App
+# Task App
 
-App con autenticacion basada en ReqRes y tablero de tareas.
+Aplicacion web construida con Next.js que implementa autenticacion con ReqRes y un tablero de tareas estilo Trello con drag and drop, persistencia por usuario, cifrado de sesion, cache en memoria y estructura de datos no trivial para la gestion del board.
 
-## Environment Variables
+## Objetivo
 
-Configura un archivo `.env.local` en la raiz con:
+El proyecto fue planteado como una prueba tecnica con foco en:
 
-```bash
+- autenticacion real contra ReqRes
+- persistencia de sesion y datos del tablero
+- manejo de estado global con Redux Toolkit
+- estructura de tareas tipo Trello
+- buenas practicas de tipado y separacion por features
+- validaciones adicionales de seguridad simuladas desde frontend y backend interno
+
+## Stack Tecnico
+
+- Next.js 16 con App Router
+- React 19
+- TypeScript
+- Redux Toolkit + React Redux
+- Styled Components
+- dnd-kit para drag and drop
+- CryptoJS para hashing y cifrado
+- LZ-String para compresion del board en storage
+- Jest + React Testing Library configurados en el proyecto
+
+## Funcionalidades Implementadas
+
+### Autenticacion
+
+- Login contra ReqRes usando una API key privada del servidor.
+- Ruta interna de servidor en `src/app/api/auth/login/route.ts` para evitar exponer la key en el cliente.
+- Generacion de clave dinamica desde frontend con `timestamp` y `nonce`.
+- Validacion de esa clave dinamica del lado servidor antes de reenviar el login a ReqRes.
+- Simulacion de latencia aleatoria para evitar dependencias de tiempo fijo.
+- Persistencia de sesion con expiracion.
+- Token cifrado antes de almacenarse en `localStorage`.
+- Restauracion automatica de sesion al recargar la aplicacion.
+
+### Tablero de Tareas
+
+- Board con tres columnas: `Por hacer`, `En progreso` y `Completado`.
+- Drag and drop entre columnas y dentro de la misma columna.
+- Crear, editar, eliminar y mover tareas.
+- Confirmacion antes de eliminar.
+- Prevencion de titulos duplicados.
+- Marcado de favoritos por tarea.
+- Busqueda por texto y filtro por estado.
+- Persistencia del board por usuario.
+- Generacion manual de IDs con usuario, fecha y hash.
+- Versionado por tarea para soporte de bloqueo optimista.
+
+### Persistencia y Datos
+
+- Estructura de datos de tareas basada en un `TaskTree` y no en un array plano.
+- Cache personalizada en memoria para reducir lecturas repetidas a `localStorage`.
+- Serializacion del board a JSON.
+- Compresion del board con `LZString.compressToUTF16` antes de guardarlo.
+- Emision de eventos internos de actualizacion del board para futura integracion realtime.
+
+## Arquitectura del Proyecto
+
+El proyecto esta organizado por responsabilidades:
+
+- `src/app`: rutas de Next.js, layout global y API routes.
+- `src/components`: componentes de UI reutilizables, agrupados por dominio.
+- `src/features`: logica de negocio separada por feature (`auth`, `tasks`).
+- `src/store`: slices, store y hooks tipados de Redux.
+- `src/lib`: clientes, keys de storage y utilidades compartidas.
+- `src/styles`: tema global y estilos base.
+
+## Flujo de Autenticacion
+
+El flujo de autenticacion actual es deliberadamente estricto:
+
+1. El usuario completa email y password en el login.
+2. El frontend genera una clave dinamica con:
+	 - `timestamp`
+	 - `nonce`
+	 - `hash SHA256(timestamp-nonce)`
+3. El cliente envia `email`, `password`, `key`, `timestamp` y `nonce` a `/api/auth/login`.
+4. La API route valida:
+	 - que los campos existan
+	 - que el `timestamp` no haya expirado
+	 - que el `hash` coincida con el valor esperado
+5. Si la validacion es correcta, la API route llama a ReqRes usando la API key privada del servidor.
+6. Si las credenciales de la aplicacion son correctas, la API route hace proxy a ReqRes usando credenciales tecnicas internas compatibles con ese servicio.
+7. Si ReqRes responde con token, el cliente guarda la sesion cifrada.
+8. En el arranque de la app se intenta restaurar la sesion desde `localStorage`.
+
+### Por que se implemento asi
+
+- La API key no debe exponerse en el navegador.
+- La validacion de seguridad no debe ocurrir solo en frontend.
+- La prueba tecnica pedia una validacion dinamica del lado backend simulado.
+- El modo estricto evita dependencias de mocks como camino principal.
+
+## Manejo de Estado
+
+Redux esta dividido en tres slices principales:
+
+- `app`: estado general de la aplicacion.
+- `auth`: usuario, sesion, loading y errores de autenticacion.
+- `tasks`: board, filtros, loading y errores de tareas.
+
+El store esta configurado en `src/store/index.ts` y expone:
+
+- `RootState`
+- `AppDispatch`
+- hooks tipados desde `src/store/hooks.ts`
+
+## Modelo de Datos de Tareas
+
+El board se modela como un arbol simple:
+
+```ts
+type TaskTree = {
+	tasksById: Record<string, TaskNode>;
+	columns: Record<ColumnId, Column>;
+	columnOrder: ColumnId[];
+};
+```
+
+Esto permite:
+
+- acceso rapido por id
+- movimiento eficiente entre columnas
+- separacion entre orden visual y contenido
+- mejor soporte para favoritos, versiones y filtros
+
+### Estructura de una tarea
+
+```ts
+type TaskNode = {
+	id: string;
+	title: string;
+	description?: string;
+	status: 'pending' | 'in_progress' | 'completed';
+	favorite: boolean;
+	createdBy: string;
+	createdAt: number;
+	updatedAt: number;
+	version: number;
+};
+```
+
+## Persistencia
+
+### Sesion
+
+La sesion se guarda en `localStorage` con:
+
+- usuario
+- token cifrado
+- fecha de expiracion
+
+Cuando la sesion expira o no puede parsearse correctamente, se limpia automaticamente.
+
+### Board
+
+El board se persiste por usuario utilizando una key de storage basada en el `userId`.
+
+Proceso de guardado:
+
+1. El board se guarda en cache en memoria.
+2. Se serializa a JSON.
+3. Se comprime con LZ-String.
+4. Se almacena en `localStorage`.
+
+Proceso de lectura:
+
+1. Se intenta leer desde cache.
+2. Si no existe cache, se consulta `localStorage`.
+3. Se descomprime y deserializa.
+4. Se vuelve a hidratar la cache.
+
+## Bloqueo Optimista
+
+Cada tarea contiene una propiedad `version`.
+
+Cuando una tarea se edita:
+
+- el cliente envia una `expectedVersion`
+- el reducer valida que coincida con la version actual
+- si no coincide, se considera conflicto y se informa un error
+
+Esto simula concurrencia y evita sobrescribir cambios invisibles.
+
+## Realtime Actual
+
+El proyecto tiene un servicio interno de eventos (`taskRealtimeService`) que emite cambios del board dentro de la app.
+
+Actualmente esto funciona como una capa de abstraccion local y sirve como punto de extension para:
+
+- migrar a WebSocket
+- migrar a SSE
+- integrar notificaciones o sincronizacion remota
+
+No reemplaza todavia una implementacion realtime real de red.
+
+## UI y Experiencia de Usuario
+
+### Login
+
+- formulario con validacion basica
+- manejo de loading y mensajes de error
+- credenciales demo propias de la aplicacion, mapeadas internamente a ReqRes
+
+### Board
+
+- navbar superior con buscador y filtro integrados
+- layout responsive para desktop y mobile
+- correccion de overflow horizontal en cards y columnas
+- prevencion de estiramiento forzado entre columnas del grid
+
+## Variables de Entorno
+
+Configura un archivo `.env.local` en la raiz del proyecto:
+
+```env
 REQRES_API_KEY=tu_api_key_real
 ```
 
-- `REQRES_API_KEY`: API key real de ReqRes usada del lado servidor.
+### Variable requerida
 
-Credenciales demo:
+- `REQRES_API_KEY`: workspace key de ReqRes usada exclusivamente del lado servidor.
+
+### Importante
+
+- No uses `NEXT_PUBLIC_REQRES_API_KEY` para este flujo.
+- El proyecto ya esta preparado para que la key permanezca privada.
+- Si cambias `.env.local`, reinicia el servidor de desarrollo.
+
+## Credenciales de Prueba
 
 ```text
-email: eve.holt@reqres.in
-password: cityslicka
+email: ejemplo@prestalana.com
+password: user99
 ```
 
-## Getting Started
+## Instalacion
 
-First, run the development server:
+```bash
+npm install
+```
+
+## Scripts Disponibles
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
+npm run lint
+npm run test
+npm run test:watch
+npm run test:coverage
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Estado actual de los scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `npm run build`: validado correctamente.
+- `npm run dev`: flujo funcional validado localmente.
+- `npm run test` y `npm run test:coverage`: configurados en el proyecto, pero aun requieren completar el trabajo de testing y ajuste fino de Jest para cubrir el objetivo de cobertura.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Ejecucion Local
 
-## Learn More
+1. Instala dependencias.
+2. Crea `.env.local` con `REQRES_API_KEY`.
+3. Ejecuta `npm run dev`.
+4. Abre `http://localhost:3000`.
+5. Inicia sesion con las credenciales demo.
 
-To learn more about Next.js, take a look at the following resources:
+## Ejemplo de Verificacion de ReqRes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Puedes verificar que la API key es valida con:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+curl -H "x-api-key: TU_REQRES_API_KEY" https://reqres.in/api/users?page=2
+```
 
-## Deploy on Vercel
+Y el login real con:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+curl -X POST "https://reqres.in/api/login" \
+	-H "Content-Type: application/json" \
+	-H "x-api-key: TU_REQRES_API_KEY" \
+	-d '{"email":"eve.holt@reqres.in","password":"cityslicka"}'
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Archivos Clave
+
+### Autenticacion
+
+- `src/app/api/auth/login/route.ts`: login server-side y validacion previa.
+- `src/features/auth/auth.service.ts`: cliente de login hacia la API interna.
+- `src/features/auth/dynamic-key.ts`: generacion de clave dinamica.
+- `src/features/auth/validate-key.ts`: validacion de la clave.
+- `src/features/auth/auth-storage.ts`: persistencia y restauracion de sesion.
+- `src/lib/reqres.ts`: configuracion privada de ReqRes.
+
+### Tareas
+
+- `src/features/tasks/types.ts`: tipos del board.
+- `src/features/tasks/task-id.ts`: generacion manual de ids.
+- `src/features/tasks/task-storage.ts`: persistencia por usuario.
+- `src/features/tasks/task-cache.ts`: cache en memoria.
+- `src/features/tasks/task-serializer.ts`: compresion y descompresion.
+- `src/store/slices/tasksSlice.ts`: reducers de tareas.
+
+### UI
+
+- `src/components/auth/LoginForm.tsx`: formulario de login.
+- `src/components/board/Board.tsx`: grid principal del board.
+- `src/components/board/DroppableColumn.tsx`: columna droppable.
+- `src/components/board/TaskCard.tsx`: card de tarea y menu contextual.
+- `src/components/board/TaskFilters.tsx`: buscador y filtro de estado.
+- `src/components/nav/BoardNav.tsx`: cabecera del board.
+
+## Decisiones de Diseño Relevantes
+
+### 1. API key del lado servidor
+
+Se eligio una API route interna para evitar exponer credenciales en el navegador.
+
+### 2. Estructura `TaskTree`
+
+Se eligio una estructura compuesta por `tasksById`, `columns` y `columnOrder` para mejorar operaciones de lectura, orden y movimiento.
+
+### 3. Persistencia comprimida
+
+Se usa compresion antes de escribir en storage para reducir el tamaño del payload y cumplir con el requisito de serializacion y compresion.
+
+### 4. Versionado por tarea
+
+Se uso `version` para soportar una forma simple y clara de bloqueo optimista.
+
+### 5. Navbar con filtros integrados
+
+Se movio el buscador al navbar para centralizar acciones de navegacion y filtrado dentro de la misma capa visual.
+
+## Estado Frente a la Prueba Tecnica
+
+### Ya cubierto
+
+- Next.js
+- TypeScript
+- Redux Toolkit
+- Styled Components
+- Login con ReqRes
+- Persistencia de sesion
+- Redireccion a board
+- Token cifrado en storage
+- Retardo aleatorio de autenticacion
+- Drag and drop
+- CRUD de tareas
+- Duplicados bloqueados
+- Favoritos
+- Filtro y busqueda
+- Cache en memoria
+- Bloqueo optimista
+- Serializacion y compresion
+- Persistencia por usuario
+- Estructura de datos no trivial
+
+### Pendiente o parcial
+
+- testing automatizado y cobertura objetivo
+- WebSocket o SSE real
+- validacion backend simulada de nombres con caracteres especiales
+- configuracion mas profunda de ESLint si se busca una version mas estricta de la entrega
+
+## Posibles Siguientes Pasos
+
+1. Agregar tests unitarios y de integracion.
+2. Corregir y endurecer la configuracion de Jest para cobertura.
+3. Implementar SSE o WebSocket real para el board.
+4. Mover la validacion especial de nombres de tareas a otra API route interna.
+5. Agregar documentacion de decisiones tecnicas en ADRs si la entrega lo requiere.
+
+## Notas Finales
+
+Este README esta orientado tanto a uso local como a defensa tecnica del proyecto. Resume la arquitectura actual, las decisiones principales y el estado real de implementacion para que pueda usarse como apoyo en revision de codigo o entrevista tecnica.

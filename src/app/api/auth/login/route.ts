@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { simulateNetworkDelay } from '@/features/auth/auth-delay';
+import {
+  APP_DEMO_CREDENTIALS,
+  REQRES_PROXY_CREDENTIALS,
+} from '@/features/auth/demo-credentials';
 import { validateDynamicKey } from '@/features/auth/validate-key';
 import { REQRES_BASE_URL, getReqresHeaders, isReqresConfigured } from '@/lib/reqres';
 
@@ -45,12 +49,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+    const isExpectedDemoLogin =
+      normalizedEmail === APP_DEMO_CREDENTIALS.email &&
+      password === APP_DEMO_CREDENTIALS.password;
+
+    if (!isExpectedDemoLogin) {
+      return NextResponse.json(
+        { error: 'Credenciales inválidas. Verifica email y password.' },
+        { status: 401 },
+      );
+    }
+
     await simulateNetworkDelay();
 
     const response = await fetch(`${REQRES_BASE_URL}/login`, {
       method: 'POST',
       headers: getReqresHeaders(),
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(REQRES_PROXY_CREDENTIALS),
       cache: 'no-store',
     });
 
