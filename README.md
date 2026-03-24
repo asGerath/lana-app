@@ -246,6 +246,33 @@ password: user99
 npm install
 ```
 
+## Docker
+
+El proyecto puede ejecutarse en contenedor usando una imagen de produccion de Next.js basada en salida `standalone`.
+
+### Build de imagen
+
+```bash
+docker build -t task-app .
+```
+
+### Ejecutar con Docker
+
+```bash
+docker run --rm -p 3000:3000 -e REQRES_API_KEY=tu_api_key_real task-app
+```
+
+### Ejecutar con Docker Compose
+
+Usa la variable `REQRES_API_KEY` en tu shell o en un archivo `.env` local para Compose:
+
+```bash
+export REQRES_API_KEY=tu_api_key_real
+docker compose up --build
+```
+
+La aplicacion quedara disponible en `http://localhost:3000`.
+
 ## Scripts Definidos
 
 ```bash
@@ -265,6 +292,7 @@ npm run test:coverage
 - `npm run test`: validado correctamente con `39` suites y `120` tests pasando.
 - `npm run test:coverage`: validado correctamente; cobertura actual aproximada de `93.33%` en statements.
 - `npm run lint`: operativo con ESLint CLI (`eslint .`) y validado en el proyecto.
+- `docker build`: soportado mediante `Dockerfile` multi-stage con salida `standalone`.
 
 ## Testing Actual
 
