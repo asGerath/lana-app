@@ -42,7 +42,8 @@ El proyecto fue planteado como una prueba tecnica con foco en:
 
 - Board con tres columnas: `Por hacer`, `En progreso` y `Completado`.
 - Drag and drop entre columnas y dentro de la misma columna.
-- Crear, editar, eliminar y mover tareas.
+- Crear tareas desde modal por columna.
+- Editar, eliminar, mover y marcar favoritas desde el menu contextual de cada card.
 - Confirmacion antes de eliminar.
 - Prevencion de titulos duplicados.
 - Marcado de favoritos por tarea.
@@ -210,6 +211,8 @@ No reemplaza todavia una implementacion realtime real de red.
 ### Board
 
 - navbar superior con buscador y filtro integrados
+- creacion de tareas desde el CTA `+ Nueva tarea` de cada columna
+- edicion, favoritos, eliminacion y movimiento manual desde el menu de cada card
 - layout responsive para desktop y mobile
 - correccion de overflow horizontal en cards y columnas
 - prevencion de estiramiento forzado entre columnas del grid
@@ -245,7 +248,7 @@ password: user99
 npm install
 ```
 
-## Scripts Disponibles
+## Scripts Definidos
 
 ```bash
 npm run dev
@@ -261,7 +264,15 @@ npm run test:coverage
 
 - `npm run build`: validado correctamente.
 - `npm run dev`: flujo funcional validado localmente.
-- `npm run test` y `npm run test:coverage`: configurados en el proyecto, pero aun requieren completar el trabajo de testing y ajuste fino de Jest para cubrir el objetivo de cobertura.
+- `npm run test`: validado correctamente con `28` suites y `83` tests pasando.
+- `npm run test:coverage`: validado correctamente; cobertura actual aproximada de `62.09%` en statements.
+- `npm run lint`: hoy no esta operativo porque `next lint` ya no es compatible con la configuracion actual de Next.js 16 y debe migrarse a ESLint CLI.
+
+## Testing Actual
+
+- Suite automatizada con Jest + React Testing Library sobre autenticacion, board, slices, storage, selectores y utilidades.
+- Cobertura fuerte en login, auth, storage, reducers y servicios.
+- Cobertura aun baja en componentes visuales complejos como `TaskCard`, `DroppableColumn`, `DraggableTaskCard` y `TaskForm`.
 
 ## Ejecucion Local
 
@@ -357,6 +368,7 @@ Se movio el buscador al navbar para centralizar acciones de navegacion y filtrad
 - Duplicados bloqueados
 - Favoritos
 - Filtro y busqueda
+- Testing automatizado
 - Cache en memoria
 - Bloqueo optimista
 - Serializacion y compresion
@@ -365,15 +377,15 @@ Se movio el buscador al navbar para centralizar acciones de navegacion y filtrad
 
 ### Pendiente o parcial
 
-- testing automatizado y cobertura objetivo
+- cobertura de componentes visuales complejos del board
 - WebSocket o SSE real
 - validacion backend simulada de nombres con caracteres especiales
-- configuracion mas profunda de ESLint si se busca una version mas estricta de la entrega
+- migracion del script de lint a ESLint CLI y configuracion mas estricta si se busca una entrega mas dura
 
 ## Posibles Siguientes Pasos
 
-1. Agregar tests unitarios y de integracion.
-2. Corregir y endurecer la configuracion de Jest para cobertura.
+1. Cubrir `TaskCard`, `DroppableColumn`, `DraggableTaskCard` y `TaskForm` para subir cobertura del board.
+2. Migrar `npm run lint` a ESLint CLI para compatibilidad completa con Next.js 16.
 3. Implementar SSE o WebSocket real para el board.
 4. Mover la validacion especial de nombres de tareas a otra API route interna.
 5. Agregar documentacion de decisiones tecnicas en ADRs si la entrega lo requiere.
