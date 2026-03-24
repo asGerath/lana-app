@@ -9,6 +9,7 @@ import { Column as ColumnType, TaskNode } from '@/features/tasks/types';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { buildTaskNode, taskTitleExists } from '@/features/tasks/task-helpers';
 import { createTask } from '@/store/slices/tasksSlice';
+import { validateTaskTitleWithServer } from '@/features/tasks/task-title-validation.service';
 import DraggableTaskCard from './DraggableTaskCard';
 
 const ColumnWrapper = styled.section<{ $isOver: boolean }>`
@@ -190,6 +191,7 @@ export default function DroppableColumn({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const taskCountLabel = `${tasks.length} ${tasks.length === 1 ? 'tarea' : 'tareas'}`;
 
   const { setNodeRef, isOver } = useDroppable({
@@ -205,23 +207,39 @@ export default function DroppableColumn({
     setTitle('');
     setDescription('');
     setError(null);
+    setIsSubmitting(false);
   };
 
-  const handleCreateTask = (event: FormEvent<HTMLFormElement>) => {
+  const handleCreateTask = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
 
     if (!user) {
       setError('No hay un usuario autenticado.');
+      setIsSubmitting(false);
       return;
     }
 
     if (!title.trim()) {
       setError('El nombre de la tarea es obligatorio.');
+      setIsSubmitting(false);
       return;
     }
 
     if (taskTitleExists(board, title)) {
       setError('Ya existe una tarea con ese nombre.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    const validation = await validateTaskTitleWithServer(title);
+
+    if (!validation.ok) {
+      setError(validation.error);
+      setIsSubmitting(false);
       return;
     }
 
@@ -233,6 +251,7 @@ export default function DroppableColumn({
     });
 
     dispatch(createTask({ task }));
+    setIsSubmitting(false);
     closeModal();
   };
 
@@ -297,7 +316,9 @@ export default function DroppableColumn({
                 <SecondaryButton type="button" onClick={closeModal}>
                   Cancelar
                 </SecondaryButton>
-                <PrimaryButton type="submit">Agregar tarea</PrimaryButton>
+                <PrimaryButton type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Validando...' : 'Agregar tarea'}
+                </PrimaryButton>
               </ModalActions>
             </Form>
           </ModalCard>
