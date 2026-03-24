@@ -269,7 +269,7 @@ npm run test:coverage
 
 - `npm run build`: validado correctamente.
 - `npm run dev`: flujo funcional validado localmente.
-- `npm run test`: validado correctamente con `28` suites y `83` tests pasando.
+- `npm run test`: validado correctamente con `30` suites y `90` tests pasando.
 - `npm run test:coverage`: validado correctamente; cobertura actual aproximada de `62.09%` en statements.
 - `npm run lint`: operativo con ESLint CLI (`eslint .`) y validado en el proyecto.
 
@@ -325,8 +325,11 @@ curl -X POST "https://reqres.in/api/login" \
 - `src/store/slices/tasksSlice.ts`: reducers de tareas.
 - `src/app/api/tasks/stream/route.ts`: stream SSE por usuario.
 - `src/app/api/tasks/realtime/route.ts`: publicacion de eventos realtime.
+- `src/app/api/tasks/validate-title/route.ts`: validacion backend simulada de nombre de tarea.
 - `src/features/tasks/useTaskRealtimeSSE.ts`: suscripcion cliente al stream SSE.
 - `src/features/tasks/task-realtime.api.ts`: cliente para publicar cambios de board.
+- `src/features/tasks/task-title-validation.ts`: regla de negocio para validar nombres con caracteres especiales.
+- `src/features/tasks/task-title-validation.service.ts`: cliente frontend para validacion backend de nombre.
 - `src/lib/sse-broker.ts`: broker en memoria para conexiones SSE.
 
 ### UI
@@ -385,20 +388,19 @@ Se movio el buscador al navbar para centralizar acciones de navegacion y filtrad
 - Persistencia por usuario
 - Estructura de datos no trivial
 - SSE realtime por usuario
+- Validacion backend simulada de nombres con caracteres especiales
 
 ### Pendiente o parcial
 
 - cobertura de componentes visuales complejos del board
-- validacion backend simulada de nombres con caracteres especiales
 - configuracion mas estricta de reglas ESLint si se busca una entrega mas dura
 
 ## Posibles Siguientes Pasos
 
 1. Cubrir `TaskCard`, `DroppableColumn`, `DraggableTaskCard` y `TaskForm` para subir cobertura del board.
 2. Endurecer reglas ESLint segun el nivel de exigencia del evaluador.
-3. Mover la validacion especial de nombres de tareas a otra API route interna.
-4. Escalar realtime a broker distribuido/WebSocket si se requiere multi-instancia.
-5. Agregar documentacion de decisiones tecnicas en ADRs si la entrega lo requiere.
+3. Escalar realtime a broker distribuido/WebSocket si se requiere multi-instancia.
+4. Agregar documentacion de decisiones tecnicas en ADRs si la entrega lo requiere.
 
 ## Notas Finales
 
