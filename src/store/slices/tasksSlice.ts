@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { initialTasksState } from '@/features/tasks/initialState';
-import { ColumnId, TaskNode, TaskTree } from '@/features/tasks/types';
+import { ColumnId, TaskFilter, TaskNode, TaskTree } from '@/features/tasks/types';
 
 type CreateTaskPayload = {
   task: TaskNode;
@@ -48,7 +48,7 @@ const tasksSlice = createSlice({
 
     setSelectedStatus: (
       state,
-      action: PayloadAction<ColumnId | 'all'>,
+      action: PayloadAction<TaskFilter>,
     ) => {
       state.selectedStatus = action.payload;
     },

@@ -74,4 +74,18 @@ describe('TaskFilters', () => {
       setSelectedStatus('in_progress'),
     );
   });
+
+  it('dispatches favorites filter selection', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ThemeProvider theme={theme}>
+        <TaskFilters />
+      </ThemeProvider>,
+    );
+
+    await user.selectOptions(screen.getByRole('combobox'), 'favorites');
+
+    expect(mockDispatch).toHaveBeenCalledWith(setSelectedStatus('favorites'));
+  });
 });

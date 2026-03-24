@@ -4,7 +4,7 @@ import Image from 'next/image';
 import styled from 'styled-components';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setSearch, setSelectedStatus } from '@/store/slices/tasksSlice';
-import { ColumnId } from '@/features/tasks/types';
+import { TaskFilter } from '@/features/tasks/types';
 
 const FiltersWrapper = styled.section`
   display: grid;
@@ -103,10 +103,11 @@ export default function TaskFilters() {
         <Select
           value={selectedStatus}
           onChange={(event) =>
-            dispatch(setSelectedStatus(event.target.value as ColumnId | 'all'))
+            dispatch(setSelectedStatus(event.target.value as TaskFilter))
           }
         >
           <option value="all">Todos los estados</option>
+          <option value="favorites">Favoritos</option>
           <option value="pending">Pendiente</option>
           <option value="in_progress">En progreso</option>
           <option value="completed">Completado</option>
