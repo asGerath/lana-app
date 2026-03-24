@@ -59,12 +59,10 @@ export default function Board() {
     let destinationColumnId: ColumnId | undefined;
     let destinationIndex = -1;
 
-    // Caso 1: cayó sobre una columna
     if (overId.startsWith('column-')) {
       destinationColumnId = overId.replace('column-', '') as ColumnId;
       destinationIndex = board.columns[destinationColumnId].taskIds.length;
     } else {
-      // Caso 2: cayó sobre otra tarea
       for (const columnId of board.columnOrder) {
         const column = board.columns[columnId];
         const foundIndex = column.taskIds.indexOf(overId);
@@ -79,7 +77,6 @@ export default function Board() {
 
     if (!destinationColumnId || destinationIndex === -1) return;
 
-    // Evita dispatch innecesario si no cambió nada
     if (
       activeColumnId === destinationColumnId &&
       sourceIndex === destinationIndex

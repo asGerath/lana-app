@@ -17,5 +17,3 @@ export type AuthState = {
   isLoading: boolean;
   error: string | null;
 };
-
-// define los tipos de acciones para la autenticación
