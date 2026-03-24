@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect, useId, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { clearSessionFromStorage } from '@/features/auth/auth-storage';
@@ -11,7 +11,8 @@ import BoardNav from '@/components/nav/BoardNav';
 import { clearTasksState, setBoardState } from '@/store/slices/tasksSlice';
 import { logout } from '@/store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { taskRealtimeService } from '@/features/tasks/task-realtime.service';
+import { publishBoardUpdate } from '@/features/tasks/task-realtime.api';
+import { useTaskRealtimeSSE } from '@/features/tasks/useTaskRealtimeSSE';
 
 const BoardPageWrapper = styled.main`
   position: relative;
@@ -52,6 +53,19 @@ export default function BoardPage() {
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { board } = useAppSelector((state) => state.tasks);
+  const skipNextRealtimePublishRef = useRef(false);
+  const realtimeClientId = useId();
+
+  const handleRemoteBoardApplied = useCallback(() => {
+    skipNextRealtimePublishRef.current = true;
+  }, []);
+
+  useTaskRealtimeSSE({
+    userId: user?.id,
+    enabled: Boolean(isAuthenticated && user),
+    clientId: realtimeClientId,
+    onRemoteBoardApplied: handleRemoteBoardApplied,
+  });
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -65,6 +79,7 @@ export default function BoardPage() {
     const storedBoard = getBoardFromStorage(user.id);
 
     if (storedBoard) {
+      skipNextRealtimePublishRef.current = true;
       dispatch(setBoardState(storedBoard));
     }
   }, [dispatch, user]);
@@ -73,23 +88,18 @@ export default function BoardPage() {
     if (!user) return;
 
     saveBoardToStorage(user.id, board);
-    taskRealtimeService.emit({
-      type: 'board-updated',
-      payload: board,
-    });
-  }, [board, user]);
 
-  useEffect(() => {
-    const unsubscribe = taskRealtimeService.subscribe((event) => {
-      if (event.type === 'board-updated') {
-        // Punto de extensión para sincronización visual,
-        // logs o futuras notificaciones en tiempo real.
-        console.log('Realtime event:', event.type);
-      }
-    });
+    if (skipNextRealtimePublishRef.current) {
+      skipNextRealtimePublishRef.current = false;
+      return;
+    }
 
-    return unsubscribe;
-  }, []);
+    void publishBoardUpdate({
+      userId: user.id,
+      board,
+      sourceClientId: realtimeClientId,
+    });
+  }, [board, realtimeClientId, user]);
 
   const handleLogout = () => {
     clearSessionFromStorage();

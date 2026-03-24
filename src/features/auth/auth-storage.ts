@@ -2,7 +2,14 @@ import { STORAGE_KEYS } from '@/lib/storage-keys';
 import { SessionData, User } from './types';
 import { decryptValue, encryptValue } from './auth-crypto';
 
-type PersistedSession = {
+type StoredSessionData = Omit<SessionData, 'token'>;
+
+type StoredSessionPayload = {
+  user: User;
+  session: StoredSessionData;
+};
+
+type RuntimeSessionPayload = {
   user: User;
   session: SessionData;
 };
@@ -12,31 +19,38 @@ export const saveSessionToStorage = (user: User, token: string) => {
 
   const encryptedToken = encryptValue(token);
 
-  const session: SessionData = {
-    token,
+  const storedSession: StoredSessionData = {
     encryptedToken,
     expiresAt: Date.now() + 1000 * 60 * 60 * 8,
   };
 
-  const payload: PersistedSession = {
+  const storedPayload: StoredSessionPayload = {
     user,
-    session,
+    session: storedSession,
   };
 
-  localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(payload));
+  const runtimePayload: RuntimeSessionPayload = {
+    user,
+    session: {
+      token,
+      ...storedSession,
+    },
+  };
+
+  localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(storedPayload));
   localStorage.setItem(STORAGE_KEYS.token, encryptedToken);
 
-  return payload;
+  return runtimePayload;
 };
 
-export const getSessionFromStorage = (): PersistedSession | null => {
+export const getSessionFromStorage = (): RuntimeSessionPayload | null => {
   if (typeof window === 'undefined') return null;
 
   const rawSession = localStorage.getItem(STORAGE_KEYS.session);
   if (!rawSession) return null;
 
   try {
-    const parsed = JSON.parse(rawSession) as PersistedSession;
+    const parsed = JSON.parse(rawSession) as StoredSessionPayload;
 
     if (parsed.session.expiresAt < Date.now()) {
       clearSessionFromStorage();

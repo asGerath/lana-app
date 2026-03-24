@@ -22,10 +22,16 @@ describe('auth-storage', () => {
     jest.spyOn(Date, 'now').mockReturnValue(now);
 
     const persisted = saveSessionToStorage(user, 'plain-token');
+    const storedRaw = localStorage.getItem(STORAGE_KEYS.session);
+    const stored = storedRaw ? (JSON.parse(storedRaw) as Record<string, unknown>) : null;
+    const storedSession = stored?.session as Record<string, unknown> | undefined;
 
     expect(persisted?.session.token).toBe('plain-token');
     expect(persisted?.session.encryptedToken).not.toBe('plain-token');
+    expect(storedSession?.token).toBeUndefined();
+    expect(storedSession?.encryptedToken).toBe(persisted?.session.encryptedToken);
     expect(localStorage.getItem(STORAGE_KEYS.session)).toBeTruthy();
+    expect(localStorage.getItem(STORAGE_KEYS.session)).not.toContain('plain-token');
     expect(localStorage.getItem(STORAGE_KEYS.token)).toBeTruthy();
   });
 
