@@ -1,18 +1,3 @@
-# Task App
-
-Aplicacion web construida con Next.js que implementa autenticacion con ReqRes y un tablero de tareas estilo Trello con drag and drop, persistencia por usuario, cifrado de sesion, cache en memoria y estructura de datos no trivial para la gestion del board.
-
-## Objetivo
-
-El proyecto fue planteado como una prueba tecnica con foco en:
-
-- autenticacion real contra ReqRes
-- persistencia de sesion y datos del tablero
-- manejo de estado global con Redux Toolkit
-- estructura de tareas tipo Trello
-- buenas practicas de tipado y separacion por features
-- validaciones adicionales de seguridad simuladas desde frontend y backend interno
-
 ## Stack Tecnico
 
 - Next.js 16 con App Router
