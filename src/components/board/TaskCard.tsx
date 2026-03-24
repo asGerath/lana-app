@@ -14,6 +14,7 @@ import {
 } from '@/store/slices/tasksSlice';
 import { taskTitleExists } from '@/features/tasks/task-helpers';
 import { ColumnId } from '@/features/tasks/types';
+import { validateTaskTitleWithServer } from '@/features/tasks/task-title-validation.service';
 
 const Card = styled.article`
     background: #f3f4f6;
@@ -274,6 +275,7 @@ export default function TaskCard({ task }: TaskCardProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isMoveOpen, setIsMoveOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description ?? '');
 
@@ -308,11 +310,16 @@ export default function TaskCard({ task }: TaskCardProps) {
         setIsMenuOpen(false);
     };
 
-    const handleSaveEdit = () => {
+    const handleSaveEdit = async () => {
+        if (isSaving) return;
+
+        setIsSaving(true);
+
         const trimmedTitle = title.trim();
 
         if (!trimmedTitle) {
             dispatch(setTasksError('El nombre de la tarea es obligatorio.'));
+            setIsSaving(false);
             return;
         }
 
@@ -324,6 +331,15 @@ export default function TaskCard({ task }: TaskCardProps) {
 
         if (duplicatedTitle || (trimmedTitle !== task.title && taskTitleExists(board, trimmedTitle))) {
             dispatch(setTasksError('Ya existe una tarea con ese nombre.'));
+            setIsSaving(false);
+            return;
+        }
+
+        const validation = await validateTaskTitleWithServer(trimmedTitle);
+
+        if (!validation.ok) {
+            dispatch(setTasksError(validation.error));
+            setIsSaving(false);
             return;
         }
 
@@ -339,12 +355,14 @@ export default function TaskCard({ task }: TaskCardProps) {
         );
 
         dispatch(setTasksError(null));
+        setIsSaving(false);
         setIsEditing(false);
     };
 
     const handleCancelEdit = () => {
         setTitle(task.title);
         setDescription(task.description ?? '');
+        setIsSaving(false);
         setIsEditing(false);
     };
 
@@ -484,10 +502,10 @@ export default function TaskCard({ task }: TaskCardProps) {
                     />
 
                     <Actions>
-                        <Button type="button" onClick={handleSaveEdit}>
-                            Guardar
+                        <Button type="button" onClick={handleSaveEdit} disabled={isSaving}>
+                            {isSaving ? 'Validando...' : 'Guardar'}
                         </Button>
-                        <Button type="button" onClick={handleCancelEdit}>
+                        <Button type="button" onClick={handleCancelEdit} disabled={isSaving}>
                             Cancelar
                         </Button>
                     </Actions>

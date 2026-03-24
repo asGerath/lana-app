@@ -54,6 +54,8 @@ export default function BoardPage() {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { board } = useAppSelector((state) => state.tasks);
   const skipNextRealtimePublishRef = useRef(false);
+  const hydratedUserIdRef = useRef<string | null>(null);
+  const hasHydratedBoardRef = useRef(false);
   const realtimeClientId = useId();
 
   const handleRemoteBoardApplied = useCallback(() => {
@@ -76,23 +78,33 @@ export default function BoardPage() {
   useEffect(() => {
     if (!user) return;
 
+    hasHydratedBoardRef.current = false;
+    hydratedUserIdRef.current = user.id;
+
     const storedBoard = getBoardFromStorage(user.id);
 
     if (storedBoard) {
       skipNextRealtimePublishRef.current = true;
       dispatch(setBoardState(storedBoard));
     }
+
+    hasHydratedBoardRef.current = true;
   }, [dispatch, user]);
 
   useEffect(() => {
     if (!user) return;
 
-    saveBoardToStorage(user.id, board);
+    // Evita sobrescribir el storage con estado inicial antes de hidratar.
+    if (!hasHydratedBoardRef.current || hydratedUserIdRef.current !== user.id) {
+      return;
+    }
 
     if (skipNextRealtimePublishRef.current) {
       skipNextRealtimePublishRef.current = false;
       return;
     }
+
+    saveBoardToStorage(user.id, board);
 
     void publishBoardUpdate({
       userId: user.id,

@@ -32,7 +32,7 @@ describe('task.selectors', () => {
             title: 'Revisar PR',
             description: 'Urgente',
             status: 'in_progress' as const,
-            favorite: false,
+            favorite: true,
             createdBy: 'user-1',
             createdAt: 1,
             updatedAt: 1,
@@ -88,6 +88,26 @@ describe('task.selectors', () => {
     const pending = selectFilteredTasksByColumn(withStatus as never, 'pending');
     const inProgress = selectFilteredTasksByColumn(
       withStatus as never,
+      'in_progress',
+    );
+
+    expect(pending).toHaveLength(0);
+    expect(inProgress).toHaveLength(1);
+    expect(inProgress[0].id).toBe('task-2');
+  });
+
+  it('filters by favorites across columns', () => {
+    const withFavorites = {
+      ...baseState,
+      tasks: {
+        ...baseState.tasks,
+        selectedStatus: 'favorites' as const,
+      },
+    };
+
+    const pending = selectFilteredTasksByColumn(withFavorites as never, 'pending');
+    const inProgress = selectFilteredTasksByColumn(
+      withFavorites as never,
       'in_progress',
     );
 

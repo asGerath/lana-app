@@ -1,5 +1,5 @@
 import { RootState } from '@/store';
-import { ColumnId, TaskNode } from './types';
+import { TaskFilter, TaskNode } from './types';
 
 const matchesSearch = (task: TaskNode, search: string) => {
   if (!search.trim()) return true;
@@ -12,8 +12,9 @@ const matchesSearch = (task: TaskNode, search: string) => {
   );
 };
 
-const matchesStatus = (task: TaskNode, selectedStatus: ColumnId | 'all') => {
+const matchesStatus = (task: TaskNode, selectedStatus: TaskFilter) => {
   if (selectedStatus === 'all') return true;
+  if (selectedStatus === 'favorites') return task.favorite;
   return task.status === selectedStatus;
 };
 

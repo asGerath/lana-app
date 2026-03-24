@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { createTask, setTasksError } from '@/store/slices/tasksSlice';
 import { buildTaskNode, taskTitleExists } from '@/features/tasks/task-helpers';
 import { ColumnId } from '@/features/tasks/types';
+import { validateTaskTitleWithServer } from '@/features/tasks/task-title-validation.service';
 
 const FormWrapper = styled.section`
   background: ${({ theme }) => theme.colors.surface};
@@ -97,22 +98,38 @@ export default function TaskForm() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<ColumnId>('pending');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
 
     if (!user) {
       dispatch(setTasksError('No hay un usuario autenticado.'));
+      setIsSubmitting(false);
       return;
     }
 
     if (!title.trim()) {
       dispatch(setTasksError('El nombre de la tarea es obligatorio.'));
+      setIsSubmitting(false);
       return;
     }
 
     if (taskTitleExists(board, title)) {
       dispatch(setTasksError('Ya existe una tarea con ese nombre.'));
+      setIsSubmitting(false);
+      return;
+    }
+
+    const validation = await validateTaskTitleWithServer(title);
+
+    if (!validation.ok) {
+      dispatch(setTasksError(validation.error));
+      setIsSubmitting(false);
       return;
     }
 
@@ -125,6 +142,7 @@ export default function TaskForm() {
 
     dispatch(createTask({ task }));
     dispatch(setTasksError(null));
+    setIsSubmitting(false);
 
     setTitle('');
     setDescription('');
@@ -172,7 +190,9 @@ export default function TaskForm() {
 
         {error ? <ErrorMessage>{error}</ErrorMessage> : null}
 
-        <Button type="submit">Agregar tarea</Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Validando...' : 'Agregar tarea'}
+        </Button>
       </Form>
     </FormWrapper>
   );

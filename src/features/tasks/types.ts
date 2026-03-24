@@ -26,10 +26,12 @@ export type TaskTree = {
   columnOrder: ColumnId[];
 };
 
+export type TaskFilter = ColumnId | 'all' | 'favorites';
+
 export type TasksState = {
   board: TaskTree;
   search: string;
-  selectedStatus: ColumnId | 'all';
+  selectedStatus: TaskFilter;
   isLoading: boolean;
   error: string | null;
 };
