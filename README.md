@@ -190,15 +190,20 @@ Esto simula concurrencia y evita sobrescribir cambios invisibles.
 
 ## Realtime Actual
 
-El proyecto tiene un servicio interno de eventos (`taskRealtimeService`) que emite cambios del board dentro de la app.
+El proyecto ya implementa sincronizacion realtime con **SSE (Server-Sent Events)** por usuario.
 
-Actualmente esto funciona como una capa de abstraccion local y sirve como punto de extension para:
+Implementacion actual:
 
-- migrar a WebSocket
-- migrar a SSE
-- integrar notificaciones o sincronizacion remota
+- stream SSE en `GET /api/tasks/stream?userId=...`
+- publicacion de cambios en `POST /api/tasks/realtime`
+- broker en memoria para conexiones activas (`src/lib/sse-broker.ts`)
+- sincronizacion cliente con `EventSource` desde `useTaskRealtimeSSE`
 
-No reemplaza todavia una implementacion realtime real de red.
+Alcance actual:
+
+- cumple el requisito tecnico de realtime usando SSE
+- mantiene el stream por proceso de servidor (suficiente para entorno de prueba tecnica)
+- puede evolucionar a infraestructura distribuida o WebSocket si el producto lo requiere
 
 ## UI y Experiencia de Usuario
 
@@ -266,7 +271,7 @@ npm run test:coverage
 - `npm run dev`: flujo funcional validado localmente.
 - `npm run test`: validado correctamente con `28` suites y `83` tests pasando.
 - `npm run test:coverage`: validado correctamente; cobertura actual aproximada de `62.09%` en statements.
-- `npm run lint`: hoy no esta operativo porque `next lint` ya no es compatible con la configuracion actual de Next.js 16 y debe migrarse a ESLint CLI.
+- `npm run lint`: operativo con ESLint CLI (`eslint .`) y validado en el proyecto.
 
 ## Testing Actual
 
@@ -318,6 +323,11 @@ curl -X POST "https://reqres.in/api/login" \
 - `src/features/tasks/task-cache.ts`: cache en memoria.
 - `src/features/tasks/task-serializer.ts`: compresion y descompresion.
 - `src/store/slices/tasksSlice.ts`: reducers de tareas.
+- `src/app/api/tasks/stream/route.ts`: stream SSE por usuario.
+- `src/app/api/tasks/realtime/route.ts`: publicacion de eventos realtime.
+- `src/features/tasks/useTaskRealtimeSSE.ts`: suscripcion cliente al stream SSE.
+- `src/features/tasks/task-realtime.api.ts`: cliente para publicar cambios de board.
+- `src/lib/sse-broker.ts`: broker en memoria para conexiones SSE.
 
 ### UI
 
@@ -374,20 +384,20 @@ Se movio el buscador al navbar para centralizar acciones de navegacion y filtrad
 - Serializacion y compresion
 - Persistencia por usuario
 - Estructura de datos no trivial
+- SSE realtime por usuario
 
 ### Pendiente o parcial
 
 - cobertura de componentes visuales complejos del board
-- WebSocket o SSE real
 - validacion backend simulada de nombres con caracteres especiales
-- migracion del script de lint a ESLint CLI y configuracion mas estricta si se busca una entrega mas dura
+- configuracion mas estricta de reglas ESLint si se busca una entrega mas dura
 
 ## Posibles Siguientes Pasos
 
 1. Cubrir `TaskCard`, `DroppableColumn`, `DraggableTaskCard` y `TaskForm` para subir cobertura del board.
-2. Migrar `npm run lint` a ESLint CLI para compatibilidad completa con Next.js 16.
-3. Implementar SSE o WebSocket real para el board.
-4. Mover la validacion especial de nombres de tareas a otra API route interna.
+2. Endurecer reglas ESLint segun el nivel de exigencia del evaluador.
+3. Mover la validacion especial de nombres de tareas a otra API route interna.
+4. Escalar realtime a broker distribuido/WebSocket si se requiere multi-instancia.
 5. Agregar documentacion de decisiones tecnicas en ADRs si la entrega lo requiere.
 
 ## Notas Finales
