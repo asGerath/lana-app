@@ -142,8 +142,8 @@ export default function LoginForm() {
     const dispatch = useAppDispatch();
     const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
 
-    const [email, setEmail] = useState('user@prestalana.com');
-    const [password, setPassword] = useState('prestalana123');
+  const [email, setEmail] = useState('eve.holt@reqres.in');
+  const [password, setPassword] = useState('cityslicka');
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -162,7 +162,7 @@ export default function LoginForm() {
             const user = {
                 id: 'reqres-user-1',
                 email,
-                name: 'Eve Holt',
+                name: 'Joshua Gerath',
             };
 
             const persistedSession = saveSessionToStorage(user, response.token);
@@ -244,7 +244,7 @@ export default function LoginForm() {
             </Form>
 
             <HelperText>
-                Credenciales demo: <br /> user@prestalana.com / prestalana123
+              Credenciales demo: <br /> eve.holt@reqres.in / cityslicka
             </HelperText>
         </LoginWrapper>
     );

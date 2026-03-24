@@ -5,7 +5,7 @@ import { Column as ColumnType, TaskNode } from '@/features/tasks/types';
 import TaskCard from './TaskCard';
 
 const ColumnWrapper = styled.section`
-  background: ${({ theme }) => theme.colors.surface};
+  background: ${({ theme }) => theme.colors.white};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
   padding: ${({ theme }) => theme.spacing.lg};
@@ -22,7 +22,8 @@ const ColumnHeader = styled.div`
 `;
 
 const ColumnTitle = styled.h2`
-  font-size: 1.1rem;
+  font-size: 1.35rem;
+  color: ${({ theme }) => theme.colors.black};
 `;
 
 const Badge = styled.span`
@@ -31,8 +32,9 @@ const Badge = styled.span`
   border-radius: 999px;
   display: inline-grid;
   place-items: center;
-  background: ${({ theme }) => theme.colors.card};
+  background: ${({ theme }) => theme.colors.white};
   border: 1px solid ${({ theme }) => theme.colors.border};
+  color: #718096;
   font-size: 0.9rem;
 `;
 

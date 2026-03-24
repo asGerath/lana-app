@@ -13,7 +13,7 @@ const globalStyles = createGlobalStyle`
     width: 100%;
     min-height: 100%;
     font-family: inherit;
-    background: ${({ theme }) => theme.colors.bg};
+    background: ${({ theme }) => theme.colors.bgcian};
     color: ${({ theme }) => theme.colors.text};
   }
 
