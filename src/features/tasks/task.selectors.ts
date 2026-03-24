@@ -1,5 +1,5 @@
 import { RootState } from '@/store';
-import { TaskFilter, TaskNode } from './types';
+import { ColumnId, TaskFilter, TaskNode } from './types';
 
 const matchesSearch = (task: TaskNode, search: string) => {
   if (!search.trim()) return true;
