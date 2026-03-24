@@ -23,9 +23,14 @@ let mockAuthState = {
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ priority: _priority, ...props }: React.ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean }) => (
-    <img {...props} alt={props.alt} />
-  ),
+  default: (
+    props: React.ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean },
+  ) => {
+    const { priority, ...imgProps } = props;
+    void priority;
+
+    return <img {...imgProps} alt={imgProps.alt} />;
+  },
 }));
 
 jest.mock('next/navigation', () => ({
