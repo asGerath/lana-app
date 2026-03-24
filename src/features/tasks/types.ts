@@ -35,5 +35,3 @@ export type TasksState = {
   isLoading: boolean;
   error: string | null;
 };
-
-// define los tipos de acciones para las tareas

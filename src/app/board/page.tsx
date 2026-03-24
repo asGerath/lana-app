@@ -94,7 +94,6 @@ export default function BoardPage() {
   useEffect(() => {
     if (!user) return;
 
-    // Evita sobrescribir el storage con estado inicial antes de hidratar.
     if (!hasHydratedBoardRef.current || hydratedUserIdRef.current !== user.id) {
       return;
     }

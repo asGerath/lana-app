@@ -23,7 +23,5 @@ export const publishBoardUpdate = async ({
         sourceClientId,
       }),
     });
-  } catch {
-    // No interrumpe UX local si falla el canal realtime.
-  }
+  } catch {}
 };

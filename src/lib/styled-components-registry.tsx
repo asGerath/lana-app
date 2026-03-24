@@ -27,6 +27,3 @@ export default function StyledComponentsRegistry({
     </StyleSheetManager>
   );
 }
-
-// sirve Para que los estilos de Styled Components 
-// se rendericen correctamente en servidor con App Router.

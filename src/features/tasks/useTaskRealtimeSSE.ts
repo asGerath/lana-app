@@ -42,9 +42,7 @@ export const useTaskRealtimeSSE = ({
 
         onRemoteBoardApplied?.();
         dispatch(setBoardState(payload.board));
-      } catch {
-        // ignora eventos inválidos para no romper el stream
-      }
+      } catch {}
     };
 
     eventSource.addEventListener('board-updated', onBoardUpdated as EventListener);
