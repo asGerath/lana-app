@@ -22,7 +22,7 @@ const Form = styled.form`
 `;
 
 const Title = styled.h2`
-  font-size: 1.25rem;
+  font-size: ${({ theme }) => theme.fontSizes.xxl};
 `;
 
 const Row = styled.div`
@@ -87,7 +87,7 @@ const Button = styled.button`
 
 const ErrorMessage = styled.p`
   color: ${({ theme }) => theme.colors.danger};
-  font-size: 0.95rem;
+  font-size: ${({ theme }) => theme.fontSizes.base};
 `;
 
 export default function TaskForm() {

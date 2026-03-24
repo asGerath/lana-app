@@ -25,7 +25,7 @@ const NavLayer = styled.header`
   position: sticky;
   top: 0;
   z-index: 40;
-  background: #f3f4f6;
+  background: ${({ theme }) => theme.colors.softBg};
 `;
 
 const ContentLayer = styled.section`

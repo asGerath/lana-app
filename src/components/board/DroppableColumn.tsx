@@ -42,7 +42,7 @@ const ColumnTitleGroup = styled.div`
 `;
 
 const ColumnTitle = styled.h2`
-  font-size: 1.35rem;
+  font-size: ${({ theme }) => theme.fontSizes.title};
   color: ${({ theme }) => theme.colors.black};
   white-space: nowrap;
   overflow: hidden;
@@ -57,10 +57,10 @@ const Badge = styled.span`
   height: 28px;
   padding: 0 10px;
   border-radius: 6px;
-  background: #f3f4f6;
-  border: 1px solid #d6dbe3;
-  color: #4b5563;
-  font-size: 0.88rem;
+  background: ${({ theme }) => theme.colors.softBg};
+  border: 1px solid ${({ theme }) => theme.colors.panelBorder};
+  color: ${({ theme }) => theme.colors.muted};
+  font-size: ${({ theme }) => theme.fontSizes.xs};
   font-weight: 500;
 `;
 
@@ -78,13 +78,13 @@ const NewTaskText = styled.button`
   margin-top: ${({ theme }) => theme.spacing.sm};
   color: ${({ theme }) => theme.colors.primary};
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: ${({ theme }) => theme.fontSizes.base};
 `;
 
 const ModalOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: ${({ theme }) => theme.colors.overlay};
   display: grid;
   place-items: center;
   z-index: 1000;
@@ -101,7 +101,7 @@ const ModalCard = styled.div`
 
 const ModalTitle = styled.h3`
   color: ${({ theme }) => theme.colors.black};
-  font-size: 1.2rem;
+  font-size: ${({ theme }) => theme.fontSizes.xl};
   margin-bottom: ${({ theme }) => theme.spacing.lg};
 `;
 
@@ -113,7 +113,7 @@ const Form = styled.form`
 const Label = styled.label`
   color: ${({ theme }) => theme.colors.black};
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: ${({ theme }) => theme.fontSizes.md};
 `;
 
 const Input = styled.input`
@@ -166,7 +166,7 @@ const PrimaryButton = styled.button`
 
 const ValidationMessage = styled.p`
   color: ${({ theme }) => theme.colors.danger};
-  font-size: 0.9rem;
+  font-size: ${({ theme }) => theme.fontSizes.sm};
 `;
 
 const STATUS_ICON_BY_COLUMN = {

@@ -46,19 +46,19 @@ const Input = styled.input`
   height: 44px;
   padding: 0 14px 0 40px;
   border-radius: 10px;
-  border: 1px solid #cfd5de;
-  background: #f7f8fa;
-  color: #273244;
+  border: 1px solid ${({ theme }) => theme.colors.softBorder};
+  background: ${({ theme }) => theme.colors.softBgAlt};
+  color: ${({ theme }) => theme.colors.mutedStrong};
   outline: none;
 
   &::placeholder {
-    color: #738095;
+    color: ${({ theme }) => theme.colors.placeholder};
   }
 
   &:focus {
-    border-color: #2c71f6;
-    box-shadow: 0 0 0 3px rgba(44, 113, 246, 0.14);
-    background: #ffffff;
+    border-color: ${({ theme }) => theme.colors.primary};
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.focusRing};
+    background: ${({ theme }) => theme.colors.white};
   }
 `;
 
@@ -67,17 +67,17 @@ const Select = styled.select`
   height: 44px;
   padding: 0 38px 0 14px;
   border-radius: 10px;
-  border: 1px solid #cfd5de;
-  background: #f7f8fa;
-  color: #273244;
+  border: 1px solid ${({ theme }) => theme.colors.softBorder};
+  background: ${({ theme }) => theme.colors.softBgAlt};
+  color: ${({ theme }) => theme.colors.mutedStrong};
   font-weight: 500;
   appearance: none;
   outline: none;
 
   &:focus {
-    border-color: #2c71f6;
-    box-shadow: 0 0 0 3px rgba(44, 113, 246, 0.14);
-    background: #ffffff;
+    border-color: ${({ theme }) => theme.colors.primary};
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.focusRing};
+    background: ${({ theme }) => theme.colors.white};
   }
 `;
 

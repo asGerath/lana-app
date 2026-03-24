@@ -12,8 +12,8 @@ type BoardNavProps = {
 
 const NavContainer = styled.header`
   width: 100%;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: ${({ theme }) => theme.colors.white};
+  border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 0;
   padding: 8px 12px;
   display: grid;
@@ -50,7 +50,7 @@ const MenuIconButton = styled.button`
   height: 40px;
   border-radius: 999px;
   border: none;
-  background: #eef4ff;
+  background: ${({ theme }) => theme.colors.navSoft};
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -75,8 +75,8 @@ const CircleIconButton = styled.button`
   width: 40px;
   height: 40px;
   border-radius: 999px;
-  border: 1px solid #dadde3;
-  background: #ffffff;
+  border: 1px solid ${({ theme }) => theme.colors.softBorder};
+  background: ${({ theme }) => theme.colors.white};
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -84,7 +84,7 @@ const CircleIconButton = styled.button`
 
   &:hover,
   &:focus-visible {
-    background: #f7f8fa;
+    background: ${({ theme }) => theme.colors.softBgAlt};
     outline: none;
   }
 `;
@@ -94,8 +94,8 @@ const UserMenuRoot = styled.div`
 `;
 
 const UserButton = styled.button`
-  border: 1px solid #dadde3;
-  background: #ffffff;
+  border: 1px solid ${({ theme }) => theme.colors.softBorder};
+  background: ${({ theme }) => theme.colors.white};
   border-radius: 999px;
   height: 40px;
   padding: 0 8px 0 3px;
@@ -106,7 +106,7 @@ const UserButton = styled.button`
 
   &:hover,
   &:focus-visible {
-    background: #f7f8fa;
+    background: ${({ theme }) => theme.colors.softBgAlt};
     outline: none;
   }
 `;
@@ -124,17 +124,17 @@ const Dropdown = styled.div`
   top: calc(100% + 8px);
   right: 0;
   min-width: 190px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: ${({ theme }) => theme.colors.white};
+  border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 12px;
-  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+  box-shadow: ${({ theme }) => theme.colors.shadowLg};
   padding: 8px;
   z-index: 25;
 `;
 
 const UserName = styled.p`
-  font-size: 0.9rem;
-  color: #0f172a;
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: ${({ theme }) => theme.colors.bg};
   font-weight: 600;
   padding: 8px;
 `;
@@ -142,8 +142,8 @@ const UserName = styled.p`
 const LogoutButton = styled.button`
   width: 100%;
   border: none;
-  background: #fff1f2;
-  color: #be123c;
+  background: ${({ theme }) => theme.colors.dangerSoft};
+  color: ${({ theme }) => theme.colors.danger};
   border-radius: 8px;
   padding: 9px 10px;
   text-align: left;
@@ -152,7 +152,7 @@ const LogoutButton = styled.button`
 
   &:hover,
   &:focus-visible {
-    background: #ffe4e6;
+    background: ${({ theme }) => theme.colors.dangerSoftHover};
     outline: none;
   }
 `;
