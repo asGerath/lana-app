@@ -5,46 +5,46 @@ import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { clearSessionFromStorage } from '@/features/auth/auth-storage';
 import { getBoardFromStorage, saveBoardToStorage } from '@/features/tasks/task-storage';
+import Image from 'next/image';
 import Board from '@/components/board/Board';
+import BoardNav from '@/components/nav/BoardNav';
 import { clearTasksState, setBoardState } from '@/store/slices/tasksSlice';
 import { logout } from '@/store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import TaskFilters from '@/components/board/TaskFilters';
 import { taskRealtimeService } from '@/features/tasks/task-realtime.service';
 
 const BoardPageWrapper = styled.main`
-  min-height: 100vh;
-  padding: ${({ theme }) => theme.spacing.xxl};
+  position: relative;
+  z-index: 10;
+  min-height: calc(100vh - 64px);
+  background-color: ${({ theme }) => theme.colors.bgcian};
 `;
 
-const Header = styled.header`
+const NavLayer = styled.header`
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: #f3f4f6;
+`;
+
+const ContentLayer = styled.section`
+  padding: 0 16px 24px;
+  display: grid;
+  gap: 12px;
+`;
+
+const FigureShape = styled.div`
+  width: 100%;
+  position: absolute;
+  right: 0;
+  bottom: 0;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.lg};
-  margin-bottom: ${({ theme }) => theme.spacing.xl};
+  justify-content: flex-end;
+  align-items: flex-end;
+  pointer-events: none;
+  user-select: none;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
-  }
-`;
-
-const Title = styled.h1`
-  font-size: 2rem;
-`;
-
-const UserInfo = styled.p`
-  color: ${({ theme }) => theme.colors.textMuted};
-  margin-top: ${({ theme }) => theme.spacing.sm};
-`;
-
-const LogoutButton = styled.button`
-  border: none;
-  padding: 10px 14px;
-  border-radius: ${({ theme }) => theme.radius.md};
-  background: ${({ theme }) => theme.colors.danger};
-  color: ${({ theme }) => theme.colors.text};
-  cursor: pointer;
+  z-index: -1;
 `;
 
 export default function BoardPage() {
@@ -69,7 +69,7 @@ export default function BoardPage() {
     }
   }, [dispatch, user]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (!user) return;
 
     saveBoardToStorage(user.id, board);
@@ -79,7 +79,7 @@ export default function BoardPage() {
     });
   }, [board, user]);
 
-    useEffect(() => {
+  useEffect(() => {
     const unsubscribe = taskRealtimeService.subscribe((event) => {
       if (event.type === 'board-updated') {
         // Punto de extensión para sincronización visual,
@@ -104,19 +104,24 @@ export default function BoardPage() {
 
   return (
     <BoardPageWrapper>
-      <Header>
-        <div>
-          <Title>Task Board</Title>
-          <UserInfo>
-            Sesión activa como: {user.name} ({user.email})
-          </UserInfo>
-        </div>
+      <NavLayer>
+        <BoardNav userName={user.name} onLogout={handleLogout} />
+      </NavLayer>
 
-        <LogoutButton onClick={handleLogout}>Cerrar sesión</LogoutButton>
-      </Header>
+      <ContentLayer>
+        <Board />
+      </ContentLayer>
 
-      <TaskFilters />
-      <Board />
+      <FigureShape>
+        <Image
+          src="/rallas_bajas.webp"
+          alt="Incados"
+          width={220}
+          height={160}
+          priority={false}
+          style={{ objectFit: 'contain', width: '100%', height: 'auto' }}
+        />
+      </FigureShape>
     </BoardPageWrapper>
   );
 }

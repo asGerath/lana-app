@@ -18,6 +18,7 @@ import { ColumnId } from '@/features/tasks/types';
 const BoardGrid = styled.section`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
   gap: ${({ theme }) => theme.spacing.lg};
 
   @media (max-width: 960px) {

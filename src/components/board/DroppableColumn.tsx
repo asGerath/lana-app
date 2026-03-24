@@ -19,8 +19,8 @@ const ColumnWrapper = styled.section<{ $isOver: boolean }>`
   border-radius: ${({ theme }) => theme.radius.lg};
   padding: ${({ theme }) => theme.spacing.lg};
   min-height: 320px;
+  min-width: 0;
   display: grid;
-  align-content: start;
   gap: ${({ theme }) => theme.spacing.lg};
   transition: border-color 0.2s ease;
 `;
@@ -29,29 +29,38 @@ const ColumnHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.sm};
+  min-width: 0;
 `;
 
 const ColumnTitleGroup = styled.div`
   display: inline-flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm};
+  min-width: 0;
 `;
 
 const ColumnTitle = styled.h2`
   font-size: 1.35rem;
   color: ${({ theme }) => theme.colors.black};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Badge = styled.span`
-  min-width: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   height: 28px;
-  border-radius: 999px;
-  display: inline-grid;
-  place-items: center;
-  background: ${({ theme }) => theme.colors.white};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  color: #718096;
-  font-size: 0.9rem;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: #f3f4f6;
+  border: 1px solid #d6dbe3;
+  color: #4b5563;
+  font-size: 0.88rem;
+  font-weight: 500;
 `;
 
 const TaskList = styled.div`
@@ -181,6 +190,7 @@ export default function DroppableColumn({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const taskCountLabel = `${tasks.length} ${tasks.length === 1 ? 'tarea' : 'tareas'}`;
 
   const { setNodeRef, isOver } = useDroppable({
     id: `column-${column.id}`,
@@ -239,7 +249,7 @@ export default function DroppableColumn({
             />
             <ColumnTitle>{column.title}</ColumnTitle>
           </ColumnTitleGroup>
-          <Badge>{tasks.length}</Badge>
+          <Badge>{taskCountLabel}</Badge>
         </ColumnHeader>
 
         <SortableContext

@@ -6,7 +6,7 @@ export const initialTasksState: TasksState = {
     columns: {
       pending: {
         id: 'pending',
-        title: 'Pendiente',
+        title: 'Por hacer',
         taskIds: [],
       },
       in_progress: {
