@@ -4,6 +4,10 @@ import { FormEvent, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
+import {
+  APP_DEMO_CREDENTIALS,
+  DEMO_REQRES_USER,
+} from '@/features/auth/demo-credentials';
 import { loginRequest } from '@/features/auth/auth.service';
 import { saveSessionToStorage } from '@/features/auth/auth-storage';
 import { loginSuccess, setAuthError, setAuthLoading } from '@/store/slices/authSlice';
@@ -142,8 +146,8 @@ export default function LoginForm() {
     const dispatch = useAppDispatch();
     const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
 
-  const [email, setEmail] = useState('eve.holt@reqres.in');
-  const [password, setPassword] = useState('cityslicka');
+  const [email, setEmail] = useState<string>(APP_DEMO_CREDENTIALS.email);
+  const [password, setPassword] = useState<string>(APP_DEMO_CREDENTIALS.password);
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -160,9 +164,9 @@ export default function LoginForm() {
             const response = await loginRequest({ email, password });
 
             const user = {
-                id: 'reqres-user-1',
+              id: DEMO_REQRES_USER.id,
                 email,
-                name: 'Joshua Gerath',
+              name: DEMO_REQRES_USER.name,
             };
 
             const persistedSession = saveSessionToStorage(user, response.token);
@@ -244,7 +248,7 @@ export default function LoginForm() {
             </Form>
 
             <HelperText>
-              Credenciales demo: <br /> eve.holt@reqres.in / cityslicka
+              Credenciales demo: <br /> {APP_DEMO_CREDENTIALS.email} / {APP_DEMO_CREDENTIALS.password}
             </HelperText>
         </LoginWrapper>
     );
