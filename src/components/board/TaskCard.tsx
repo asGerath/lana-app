@@ -133,10 +133,6 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
-const DangerButton = styled(Button)`
-  background: ${({ theme }) => theme.colors.danger};
-`;
-
 const MenuWrapper = styled.div`
     position: relative;
     flex-shrink: 0;

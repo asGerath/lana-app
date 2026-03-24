@@ -32,8 +32,8 @@ const importPostHandler = async (isConfigured = true) => {
     isReqresConfigured: isConfigured,
   }));
 
-  const module = await import('./route');
-  return module.POST;
+  const routeModule = await import('./route');
+  return routeModule.POST;
 };
 
 const buildRequest = (body: Record<string, unknown>) =>
