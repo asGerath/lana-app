@@ -1,14 +1,12 @@
-import axios from 'axios';
+const reqresApiKey = process.env.REQRES_API_KEY?.trim() || '';
+const hasValidReqresApiKey =
+  reqresApiKey.length > 0 && reqresApiKey !== 'tu_api_key_aqui';
 
-const reqresApiKey = process.env.NEXT_PUBLIC_REQRES_API_KEY?.trim() || '';
-const hasValidReqresApiKey = reqresApiKey.length > 0 && reqresApiKey !== 'tu_api_key_aqui';
+export const REQRES_BASE_URL = 'https://reqres.in/api';
 
-export const reqresClient = axios.create({
-  baseURL: 'https://reqres.in/api',
-  headers: {
-    'Content-Type': 'application/json',
-    ...(hasValidReqresApiKey ? { 'x-api-key': reqresApiKey } : {}),
-  },
+export const getReqresHeaders = () => ({
+  'Content-Type': 'application/json',
+  ...(hasValidReqresApiKey ? { 'x-api-key': reqresApiKey } : {}),
 });
 
 export const isReqresConfigured = hasValidReqresApiKey;

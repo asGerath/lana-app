@@ -7,12 +7,10 @@ App con autenticacion basada en ReqRes y tablero de tareas.
 Configura un archivo `.env.local` en la raiz con:
 
 ```bash
-NEXT_PUBLIC_REQRES_API_KEY=tu_api_key_real
-NEXT_PUBLIC_ENABLE_AUTH_MOCK=false
+REQRES_API_KEY=tu_api_key_real
 ```
 
-- `NEXT_PUBLIC_REQRES_API_KEY`: API key real de ReqRes.
-- `NEXT_PUBLIC_ENABLE_AUTH_MOCK`: solo para desarrollo. Si vale `true`, permite login mock con las credenciales demo cuando ReqRes no esta disponible o la key no es valida.
+- `REQRES_API_KEY`: API key real de ReqRes usada del lado servidor.
 
 Credenciales demo:
 
