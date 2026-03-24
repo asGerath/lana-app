@@ -35,7 +35,7 @@ El proyecto fue planteado como una prueba tecnica con foco en:
 - Validacion de esa clave dinamica del lado servidor antes de reenviar el login a ReqRes.
 - Simulacion de latencia aleatoria para evitar dependencias de tiempo fijo.
 - Persistencia de sesion con expiracion.
-- Token cifrado antes de almacenarse en `localStorage`.
+- Solo se persiste el token cifrado en `localStorage`; el token plano no queda almacenado.
 - Restauracion automatica de sesion al recargar la aplicacion.
 
 ### Tablero de Tareas
@@ -47,7 +47,7 @@ El proyecto fue planteado como una prueba tecnica con foco en:
 - Confirmacion antes de eliminar.
 - Prevencion de titulos duplicados.
 - Marcado de favoritos por tarea.
-- Busqueda por texto y filtro por estado.
+- Busqueda por texto y filtro por estado, incluyendo vista de favoritos.
 - Persistencia del board por usuario.
 - Generacion manual de IDs con usuario, fecha y hash.
 - Versionado por tarea para soporte de bloqueo optimista.
@@ -58,7 +58,12 @@ El proyecto fue planteado como una prueba tecnica con foco en:
 - Cache personalizada en memoria para reducir lecturas repetidas a `localStorage`.
 - Serializacion del board a JSON.
 - Compresion del board con `LZString.compressToUTF16` antes de guardarlo.
-- Emision de eventos internos de actualizacion del board para futura integracion realtime.
+- Publicacion de actualizaciones del board para sincronizacion realtime por SSE.
+
+### UI y Tema
+
+- Tema centralizado en `src/styles/theme.ts` con tokens de color, espaciado, radios, sombras y tipografia.
+- Componentes principales del login y del board conectados al tema para reflejar el sistema visual real del proyecto.
 
 ## Arquitectura del Proyecto
 
@@ -156,6 +161,8 @@ La sesion se guarda en `localStorage` con:
 - token cifrado
 - fecha de expiracion
 
+El token plano se mantiene solo en memoria de la aplicacion mientras la sesion esta activa.
+
 Cuando la sesion expira o no puede parsearse correctamente, se limpia automaticamente.
 
 ### Board
@@ -218,6 +225,7 @@ Alcance actual:
 - navbar superior con buscador y filtro integrados
 - creacion de tareas desde el CTA `+ Nueva tarea` de cada columna
 - edicion, favoritos, eliminacion y movimiento manual desde el menu de cada card
+- filtro dedicado de favoritos junto al resto de estados del tablero
 - layout responsive para desktop y mobile
 - correccion de overflow horizontal en cards y columnas
 - prevencion de estiramiento forzado entre columnas del grid
@@ -269,15 +277,16 @@ npm run test:coverage
 
 - `npm run build`: validado correctamente.
 - `npm run dev`: flujo funcional validado localmente.
-- `npm run test`: validado correctamente con `30` suites y `90` tests pasando.
-- `npm run test:coverage`: validado correctamente; cobertura actual aproximada de `62.09%` en statements.
+- `npm run test`: validado correctamente con `39` suites y `120` tests pasando.
+- `npm run test:coverage`: validado correctamente; cobertura actual aproximada de `93.33%` en statements.
 - `npm run lint`: operativo con ESLint CLI (`eslint .`) y validado en el proyecto.
 
 ## Testing Actual
 
 - Suite automatizada con Jest + React Testing Library sobre autenticacion, board, slices, storage, selectores y utilidades.
-- Cobertura fuerte en login, auth, storage, reducers y servicios.
-- Cobertura aun baja en componentes visuales complejos como `TaskCard`, `DroppableColumn`, `DraggableTaskCard` y `TaskForm`.
+- Cobertura fuerte en login, auth, storage, reducers, servicios y rutas API.
+- Cobertura agregada para validacion backend de titulos, favoritos en filtros, sincronizacion de tareas por SSE y componentes principales del board.
+- El board ya cuenta con pruebas directas sobre `TaskCard`, `DroppableColumn`, `DraggableTaskCard` y `TaskForm`.
 
 ## Ejecucion Local
 
@@ -340,6 +349,7 @@ curl -X POST "https://reqres.in/api/login" \
 - `src/components/board/TaskCard.tsx`: card de tarea y menu contextual.
 - `src/components/board/TaskFilters.tsx`: buscador y filtro de estado.
 - `src/components/nav/BoardNav.tsx`: cabecera del board.
+- `src/styles/theme.ts`: tokens visuales centralizados de color, sombras y tipografia.
 
 ## Decisiones de Diseño Relevantes
 
@@ -381,6 +391,7 @@ Se movio el buscador al navbar para centralizar acciones de navegacion y filtrad
 - Duplicados bloqueados
 - Favoritos
 - Filtro y busqueda
+- Filtro dedicado de favoritos
 - Testing automatizado
 - Cache en memoria
 - Bloqueo optimista
@@ -392,15 +403,14 @@ Se movio el buscador al navbar para centralizar acciones de navegacion y filtrad
 
 ### Pendiente o parcial
 
-- cobertura de componentes visuales complejos del board
 - configuracion mas estricta de reglas ESLint si se busca una entrega mas dura
+- cobertura directa de piezas de infraestructura no criticas como `styled-components-registry` o estilos globales, si se quisiera llevar la cobertura aun mas lejos
 
 ## Posibles Siguientes Pasos
 
-1. Cubrir `TaskCard`, `DroppableColumn`, `DraggableTaskCard` y `TaskForm` para subir cobertura del board.
-2. Endurecer reglas ESLint segun el nivel de exigencia del evaluador.
-3. Escalar realtime a broker distribuido/WebSocket si se requiere multi-instancia.
-4. Agregar documentacion de decisiones tecnicas en ADRs si la entrega lo requiere.
+1. Endurecer reglas ESLint segun el nivel de exigencia del evaluador.
+2. Escalar realtime a broker distribuido/WebSocket si se requiere multi-instancia.
+3. Agregar documentacion de decisiones tecnicas en ADRs si la entrega lo requiere.
 
 ## Notas Finales
 

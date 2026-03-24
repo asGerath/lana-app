@@ -1,3 +1,5 @@
+export {};
+
 const importPostHandler = async () => {
   jest.resetModules();
 

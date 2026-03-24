@@ -22,7 +22,7 @@ const ColumnHeader = styled.div`
 `;
 
 const ColumnTitle = styled.h2`
-  font-size: 1.35rem;
+  font-size: ${({ theme }) => theme.fontSizes.title};
   color: ${({ theme }) => theme.colors.black};
 `;
 
@@ -34,8 +34,8 @@ const Badge = styled.span`
   place-items: center;
   background: ${({ theme }) => theme.colors.white};
   border: 1px solid ${({ theme }) => theme.colors.border};
-  color: #718096;
-  font-size: 0.9rem;
+  color: ${({ theme }) => theme.colors.mutedLight};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
 `;
 
 const TaskList = styled.div`

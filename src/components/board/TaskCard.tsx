@@ -17,8 +17,8 @@ import { ColumnId } from '@/features/tasks/types';
 import { validateTaskTitleWithServer } from '@/features/tasks/task-title-validation.service';
 
 const Card = styled.article`
-    background: #f3f4f6;
-    border: 1px solid #dde1e7;
+    background: ${({ theme }) => theme.colors.softBg};
+    border: 1px solid ${({ theme }) => theme.colors.softBorder};
     border-radius: 12px;
     padding: 16px;
     display: grid;
@@ -45,7 +45,7 @@ const Handle = styled.span`
     width: 32px;
     height: 32px;
     border-radius: 2px;
-    background: #eceff3;
+    background: ${({ theme }) => theme.colors.softBgAlt};
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -53,9 +53,9 @@ const Handle = styled.span`
 `;
 
 const Title = styled.h3`
-    font-size: clamp(1.05rem, 1.4vw, 1.85rem);
+    font-size: ${({ theme }) => theme.fontSizes.taskTitleClamp};
     line-height: 1.18;
-    color: #0b1220;
+    color: ${({ theme }) => theme.colors.inkTitle};
     font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
@@ -63,8 +63,8 @@ const Title = styled.h3`
 `;
 
 const Description = styled.p`
-    color: #4d535f;
-    font-size: clamp(0.96rem, 1.15vw, 1.05rem);
+    color: ${({ theme }) => theme.colors.inkSoft};
+    font-size: ${({ theme }) => theme.fontSizes.taskBodyClamp};
     line-height: 1.35;
     margin-left: 44px;
     overflow-wrap: anywhere;
@@ -72,7 +72,7 @@ const Description = styled.p`
 `;
 
 const Meta = styled.small`
-    color: #7a8799;
+    color: ${({ theme }) => theme.colors.inkMuted};
     margin-left: 44px;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -101,7 +101,7 @@ const Avatar = styled.span<{ $shift: number }>`
     width: 30px;
     height: 30px;
     border-radius: 999px;
-    border: 2px solid #f3f4f6;
+    border: 2px solid ${({ theme }) => theme.colors.softBg};
     overflow: hidden;
     margin-left: ${({ $shift }) => `${$shift}px`};
 `;
@@ -110,11 +110,11 @@ const DateChip = styled.span`
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    border: 1px solid #d3d7de;
+    border: 1px solid ${({ theme }) => theme.colors.chipBorder};
     border-radius: 10px;
-    background: #f6f7f9;
+    background: ${({ theme }) => theme.colors.chipBg};
     padding: 6px 12px;
-    color: #4b5563;
+    color: ${({ theme }) => theme.colors.muted};
     font-weight: 600;
     flex-shrink: 0;
 `;
@@ -129,7 +129,7 @@ const Button = styled.button`
   border: none;
   padding: 8px 10px;
   border-radius: ${({ theme }) => theme.radius.sm};
-    background: #1f3555;
+    background: ${({ theme }) => theme.colors.brandDark};
     color: ${({ theme }) => theme.colors.white};
   cursor: pointer;
 `;
@@ -152,7 +152,7 @@ const MenuButton = styled.button`
 
     &:hover,
     &:focus-visible {
-        background: rgba(15, 23, 42, 0.08);
+        background: ${({ theme }) => theme.colors.menuHover};
         outline: none;
     }
 `;
@@ -165,7 +165,7 @@ const Menu = styled.div`
     background: ${({ theme }) => theme.colors.surface};
     border: 1px solid ${({ theme }) => theme.colors.border};
     border-radius: ${({ theme }) => theme.radius.md};
-    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+    box-shadow: ${({ theme }) => theme.colors.shadowMd};
     padding: 6px;
     z-index: 15;
 `;
@@ -183,14 +183,14 @@ const MenuItem = styled.button<{ $danger?: boolean }>`
 
     &:hover,
     &:focus-visible {
-        background: rgba(15, 23, 42, 0.08);
+        background: ${({ theme }) => theme.colors.menuHover};
         outline: none;
     }
 `;
 
 const MenuDivider = styled.hr`
     border: none;
-    border-top: 1px solid rgba(15, 23, 42, 0.1);
+    border-top: 1px solid ${({ theme }) => theme.colors.dividerSoft};
     margin: 4px 0;
 `;
 
@@ -210,7 +210,7 @@ const MoveHeader = styled.button`
 
     &:hover,
     &:focus-visible {
-        background: rgba(15, 23, 42, 0.08);
+        background: ${({ theme }) => theme.colors.menuHover};
         outline: none;
     }
 `;
@@ -223,18 +223,18 @@ const SubMenuItem = styled.button`
     padding: 8px 10px 8px 20px;
     border-radius: ${({ theme }) => theme.radius.sm};
     color: ${({ theme }) => theme.colors.text};
-    font-size: 0.9rem;
+    font-size: ${({ theme }) => theme.fontSizes.sm};
     cursor: pointer;
 
     &:hover,
     &:focus-visible {
-        background: rgba(15, 23, 42, 0.08);
+        background: ${({ theme }) => theme.colors.menuHover};
         outline: none;
     }
 `;
 
 const FavoriteBadge = styled.span`
-  font-size: 1rem;
+    font-size: ${({ theme }) => theme.fontSizes.lg};
 `;
 
 const EditForm = styled.div`

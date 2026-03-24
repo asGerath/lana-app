@@ -21,19 +21,19 @@ const LoginWrapper = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.radius.lg};
   padding: ${({ theme }) => theme.spacing.xxl};
-  box-shadow: 0px -5px 33px 1px #C9DBFD4F;
+  box-shadow: ${({ theme }) => theme.colors.loginShadow};
 `;
 
 const Eyebrow = styled.span`
   display: block;
   margin-bottom: ${({ theme }) => theme.spacing.sm};
   color: ${({ theme }) => theme.colors.black};
-  font-size: 20px;
+  font-size: ${({ theme }) => theme.fontSizes.eyebrow};
   font-weight: 500;
 `;
 
 const Title = styled.h1`
-  font-size: 2rem;
+  font-size: ${({ theme }) => theme.fontSizes.hero};
   margin-bottom: ${({ theme }) => theme.spacing.md};
   color: ${({ theme }) => theme.colors.black};
   font-weight: 500;
@@ -73,7 +73,7 @@ const Divider = styled.div`
   gap: ${({ theme }) => theme.spacing.md};
   margin-bottom: ${({ theme }) => theme.spacing.xl};
   color: ${({ theme }) => theme.colors.black};
-  font-size: 0.95rem;
+  font-size: ${({ theme }) => theme.fontSizes.base};
 
   &::before,
   &::after {
@@ -132,13 +132,13 @@ const Button = styled.button`
 
 const ErrorMessage = styled.p`
   color: ${({ theme }) => theme.colors.black};
-  font-size: 0.95rem;
+  font-size: ${({ theme }) => theme.fontSizes.base};
 `;
 
 const HelperText = styled.p`
   margin-top: ${({ theme }) => theme.spacing.lg};
   color: ${({ theme }) => theme.colors.black};
-  font-size: 0.9rem;
+  font-size: ${({ theme }) => theme.fontSizes.sm};
 `;
 
 export default function LoginForm() {
